@@ -14,12 +14,11 @@
 
 #import <UIKit/UIKit.h>
 
+#import "MDCAvailability.h"
 #import "MDCBottomNavigationBar.h"
 #import "MDCBottomNavigationBar+ItemView.h"
 #import "MDCBottomNavigationBar+Private.h"
 #import "MDCBottomNavigationItemView.h"
-
-NS_ASSUME_NONNULL_BEGIN
 
 @implementation MDCBottomNavigationBar (ItemViewConfiguration)
 
@@ -38,9 +37,19 @@ NS_ASSUME_NONNULL_BEGIN
   itemView.selectionIndicatorSize = self.selectionIndicatorSize;
   itemView.showsSelectionIndicator = self.showsSelectionIndicator;
 
+  // TODO(b/234850214): Delete once everyone has migrated to itemBadgeAppearance.
+  [self configureBadgeForItemViewLegacy:itemView];
+
   [self configureColorsForItemView:itemView];
   [self configureMarginForItemView:itemView];
   [self configureTitleForItemView:itemView];
+}
+
+// TODO(b/234850214): Delete once everyone has migrated to itemBadgeAppearance.
+- (void)configureBadgeForItemViewLegacy:(MDCBottomNavigationItemView *)itemView {
+  itemView.badgeColor = self.itemBadgeBackgroundColor;
+  itemView.badgeFont = self.itemBadgeTextFont;
+  itemView.badgeTextColor = self.itemBadgeTextColor;
 }
 
 - (void)configureColorsForItemView:(MDCBottomNavigationItemView *)itemView {
@@ -104,5 +113,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

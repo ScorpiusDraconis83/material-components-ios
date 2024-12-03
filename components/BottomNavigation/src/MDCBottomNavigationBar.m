@@ -133,10 +133,11 @@ static BOOL gEnablePerformantShadow = NO;
   _rippleEnabled = YES;
   _itemsAlignmentInVerticalMode = MDCNavigationBarItemsVerticalAlignmentCenter;
   _itemBadgeAppearance = [[MDCBadgeAppearance alloc] init];
-  _itemBadgeAppearance.textColor = UIColor.whiteColor;
-  _itemBadgeAppearance.font = [UIFont systemFontOfSize:kBadgeFontSize];
-  _itemBadgeAppearance.backgroundColor = MDCPalette.redPalette.tint700;
 
+  // TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
+  _itemBadgeTextColor = UIColor.whiteColor;
+  _itemBadgeTextFont = [UIFont systemFontOfSize:kBadgeFontSize];
+  _itemBadgeBackgroundColor = MDCPalette.redPalette.tint700;
   _itemsHorizontalPadding = kDefaultItemHorizontalPadding;
   _showsSelectionIndicator = NO;
   _selectionIndicatorColor = [UIColor colorWithRed:195.f / 255.f
@@ -913,7 +914,6 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.selected = NO;
     itemView.displayTitleInVerticalLayout = self.displayItemTitlesInVerticalLayout;
     itemView.enableVerticalLayout = self.enableVerticalLayout;
-    itemView.badgeAppearance = _itemBadgeAppearance;
 
     itemView.selectionIndicatorColor = self.selectionIndicatorColor;
     itemView.selectionIndicatorSize = self.selectionIndicatorSize;
@@ -1302,6 +1302,38 @@ static BOOL gEnablePerformantShadow = NO;
   for (NSUInteger i = 0; i < [self itemCount]; ++i) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
     itemView.badgeHorizontalOffset = itemBadgeHorizontalOffset;
+  }
+}
+
+// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
+- (void)setItemBadgeBackgroundColor:(nullable UIColor *)itemBadgeBackgroundColor {
+  _itemBadgeBackgroundColor = itemBadgeBackgroundColor;
+
+  for (NSUInteger i = 0; i < self.items.count; ++i) {
+    UITabBarItem *item = self.items[i];
+    if (item.badgeColor) {
+      continue;
+    }
+    MDCBottomNavigationItemView *itemView = self.itemViews[i];
+    itemView.badgeColor = itemBadgeBackgroundColor;
+  }
+}
+
+// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
+- (void)setItemBadgeTextColor:(nullable UIColor *)itemBadgeTextColor {
+  _itemBadgeTextColor = itemBadgeTextColor;
+
+  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
+    itemView.badgeTextColor = itemBadgeTextColor;
+  }
+}
+
+// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
+- (void)setItemBadgeTextFont:(nullable UIFont *)itemBadgeTextFont {
+  _itemBadgeTextFont = itemBadgeTextFont;
+
+  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
+    itemView.badgeFont = itemBadgeTextFont;
   }
 }
 
