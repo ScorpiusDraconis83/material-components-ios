@@ -25,6 +25,8 @@
 #import "MaterialShadow.h"
 #import "MaterialShadowElevations.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @protocol MDCBottomNavigationBarDelegate;
 
 /** States used to configure bottom navigation on when to show item titles. */
@@ -354,21 +356,6 @@ traitCollectionDidChange:. The block is called after the call to the superclass.
 @property(nonatomic, copy, nonnull) MDCBadgeAppearance *itemBadgeAppearance;
 
 /**
- Default background color for badges.
-
- If a given UITabBarItem's `badgeColor` is non-nil, then the item's `badgeColor` is used instead of
- this value.
-
- This property is a proxy for itemBadgeAppearance.backgroundColor, with the exception that assigning
- nil will be treated as [UIColor clearColor].
-
- Default is a red color.
- */
-@property(nonatomic, copy, nullable)
-    UIColor *itemBadgeBackgroundColor API_DEPRECATED_WITH_REPLACEMENT(
-        "itemBadgeAppearance.backgroundColor", ios(12, 12));
-
-/**
  X-offset for Badge position.
 
  Set this property to adjust horizontal spacing between badges and icons, within item views.
@@ -380,26 +367,6 @@ traitCollectionDidChange:. The block is called after the call to the superclass.
  Default is 0.
  */
 @property(nonatomic, assign) CGFloat itemBadgeHorizontalOffset;
-
-/**
- Text color for badges.
-
- This property is a proxy for itemBadgeAppearance.textColor.
-
- Default is white.
- */
-@property(nonatomic, copy, nullable) UIColor *itemBadgeTextColor API_DEPRECATED_WITH_REPLACEMENT(
-    "itemBadgeAppearance.textColor", ios(12, 12));
-
-/**
- Text font for badges.
-
- This property is a proxy for itemBadgeAppearance.font.
-
- Default is a small system font.
- */
-@property(nonatomic, copy, nullable) UIFont *itemBadgeTextFont API_DEPRECATED_WITH_REPLACEMENT(
-    "itemBadgeAppearance.font", ios(12, 12));
 
 @end
 
@@ -424,3 +391,5 @@ API_UNAVAILABLE(tvos, watchos)
     UILargeContentViewerInteractionDelegate>
 @end
 #endif  // MDC_AVAILABLE_SDK_IOS(13_0)
+
+NS_ASSUME_NONNULL_END

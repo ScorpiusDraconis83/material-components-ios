@@ -14,9 +14,11 @@
 
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "MDCBadgeAppearance.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wprivate-header"
+#import "MDCBottomNavigationBarItem.h"
 #import "MDCBottomNavigationItemView.h"
 #pragma clang diagnostic pop
 
@@ -24,6 +26,7 @@
 #import "supplemental/MDCBottomNavigationSnapshotTestUtilities.h"
 #import "supplemental/MDCFakeBottomNavigationBar.h"
 #import "MDCAvailability.h"
+#import "MDCBadgeAppearance.h"
 #import "MDCBottomNavigationBar.h"
 #import "MDCRippleTouchController.h"
 #import "MDCRippleView.h"
@@ -401,7 +404,7 @@ static const CGFloat kHeightShort = 48;
 
 #pragma mark - Badging
 
-- (void)testCustomBadgeColorsSetAfterItems {
+- (void)testCustomBadgeColorsOverrideDefaultBadgeAppearanceWhenSetAfterBarItems {
   // Given
   self.tabItem1.badgeValue = @"";
   self.tabItem2.badgeValue = @"Gray on Yellow";
@@ -410,15 +413,34 @@ static const CGFloat kHeightShort = 48;
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  self.tabItem3.badgeColor = UIColor.greenColor;
-  self.navigationBar.itemBadgeBackgroundColor = UIColor.yellowColor;
-  self.navigationBar.itemBadgeTextColor = UIColor.darkGrayColor;
+  MDCBadgeAppearance *greenAppearance = [[MDCBadgeAppearance alloc] init];
+  greenAppearance.font = [UIFont systemFontOfSize:8.0];
+  greenAppearance.backgroundColor = UIColor.greenColor;
+  greenAppearance.textColor = UIColor.darkGrayColor;
+  MDCBottomNavigationBarItem *barItem1 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem1];
+  MDCBottomNavigationBarItem *barItem2 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2];
+  MDCBottomNavigationBarItem *barItem3 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3
+                                          badgeAppearance:greenAppearance];
+  MDCBottomNavigationBarItem *barItem4 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem4];
+  MDCBottomNavigationBarItem *barItem5 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem5];
+  self.navigationBar.barItems = @[ barItem1, barItem2, barItem3, barItem4, barItem5 ];
+
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:8.0];
+  badgeAppearance.backgroundColor = UIColor.yellowColor;
+  badgeAppearance.textColor = UIColor.darkGrayColor;
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
 
   // Then
   [self generateAndVerifySnapshot];
 }
 
-- (void)testCustomBadgeColorsSetBeforeItems {
+- (void)testCustomBadgeColorsOverrideDefaultBadgeAppearanceWhenSetBeforeBarItems {
   // Given
   self.tabItem1.badgeValue = @"";
   self.tabItem2.badgeValue = @"Gray on Yellow";
@@ -427,11 +449,27 @@ static const CGFloat kHeightShort = 48;
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  self.tabItem3.badgeColor = UIColor.greenColor;
-  self.navigationBar.itemBadgeBackgroundColor = UIColor.yellowColor;
-  self.navigationBar.itemBadgeTextColor = UIColor.darkGrayColor;
-  self.navigationBar.items =
-      @[ self.tabItem1, self.tabItem2, self.tabItem3, self.tabItem4, self.tabItem5 ];
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:8.0];
+  badgeAppearance.backgroundColor = UIColor.yellowColor;
+  badgeAppearance.textColor = UIColor.darkGrayColor;
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
+  MDCBadgeAppearance *greenAppearance = [[MDCBadgeAppearance alloc] init];
+  greenAppearance.font = [UIFont systemFontOfSize:8.0];
+  greenAppearance.backgroundColor = UIColor.greenColor;
+  greenAppearance.textColor = UIColor.darkGrayColor;
+  MDCBottomNavigationBarItem *barItem1 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem1];
+  MDCBottomNavigationBarItem *barItem2 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2];
+  MDCBottomNavigationBarItem *barItem3 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3
+                                          badgeAppearance:greenAppearance];
+  MDCBottomNavigationBarItem *barItem4 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem4];
+  MDCBottomNavigationBarItem *barItem5 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem5];
+  self.navigationBar.barItems = @[ barItem1, barItem2, barItem3, barItem4, barItem5 ];
 
   // Then
   [self generateAndVerifySnapshot];
@@ -446,9 +484,27 @@ static const CGFloat kHeightShort = 48;
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  self.tabItem3.badgeColor = UIColor.greenColor;
-  self.navigationBar.itemBadgeBackgroundColor = [UIColor clearColor];
-  self.navigationBar.itemBadgeTextColor = nil;
+  MDCBadgeAppearance *greenAppearance = [[MDCBadgeAppearance alloc] init];
+  greenAppearance.font = [UIFont systemFontOfSize:8.0];
+  greenAppearance.backgroundColor = UIColor.greenColor;
+  greenAppearance.textColor = UIColor.blackColor;
+  MDCBottomNavigationBarItem *barItem1 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem1];
+  MDCBottomNavigationBarItem *barItem2 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2];
+  MDCBottomNavigationBarItem *barItem3 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3
+                                          badgeAppearance:greenAppearance];
+  MDCBottomNavigationBarItem *barItem4 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem4];
+  MDCBottomNavigationBarItem *barItem5 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem5];
+  self.navigationBar.barItems = @[ barItem1, barItem2, barItem3, barItem4, barItem5 ];
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:8.0];
+  badgeAppearance.backgroundColor = UIColor.clearColor;
+  badgeAppearance.textColor = nil;
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
 
   // Then
   [self generateAndVerifySnapshot];
@@ -463,9 +519,27 @@ static const CGFloat kHeightShort = 48;
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  self.tabItem3.badgeColor = UIColor.greenColor;
-  self.navigationBar.itemBadgeBackgroundColor = nil;
-  self.navigationBar.itemBadgeTextColor = nil;
+  MDCBadgeAppearance *greenAppearance = [[MDCBadgeAppearance alloc] init];
+  greenAppearance.font = [UIFont systemFontOfSize:8.0];
+  greenAppearance.backgroundColor = UIColor.greenColor;
+  greenAppearance.textColor = UIColor.blackColor;
+  MDCBottomNavigationBarItem *barItem1 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem1];
+  MDCBottomNavigationBarItem *barItem2 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2];
+  MDCBottomNavigationBarItem *barItem3 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3
+                                          badgeAppearance:greenAppearance];
+  MDCBottomNavigationBarItem *barItem4 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem4];
+  MDCBottomNavigationBarItem *barItem5 =
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem5];
+  self.navigationBar.barItems = @[ barItem1, barItem2, barItem3, barItem4, barItem5 ];
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:8.0];
+  badgeAppearance.backgroundColor = nil;
+  badgeAppearance.textColor = nil;
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
 
   // Then
   [self generateAndVerifySnapshot];
@@ -479,7 +553,9 @@ static const CGFloat kHeightShort = 48;
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  self.navigationBar.itemBadgeTextFont = [UIFont systemFontOfSize:10.0];
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:10.0];
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
   self.navigationBar.items =
       @[ self.tabItem1, self.tabItem2, self.tabItem3, self.tabItem4, self.tabItem5 ];
 
@@ -497,7 +573,9 @@ static const CGFloat kHeightShort = 48;
   // When
   self.navigationBar.items =
       @[ self.tabItem1, self.tabItem2, self.tabItem3, self.tabItem4, self.tabItem5 ];
-  self.navigationBar.itemBadgeTextFont = [UIFont systemFontOfSize:10.0];
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = [UIFont systemFontOfSize:10.0];
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
 
   // Then
   [self generateAndVerifySnapshot];

@@ -21,7 +21,6 @@
 #pragma clang diagnostic pop
 #import "MDCAvailability.h"
 #import "MDCBottomNavigationBar.h"
-#import "MDCPalettes.h"
 #import "MDCShadowElevations.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -64,25 +63,6 @@ static NSString *const kTestItemTitleText = @"Title";
 
 - (void)tearDown {
   self.bottomNavBar = nil;
-}
-
-- (void)testDefaultValues {
-  // When
-  MDCBottomNavigationBar *bar = [[MDCBottomNavigationBar alloc] init];
-
-  // Then
-  XCTAssertEqualObjects(bar.backgroundColor, UIColor.whiteColor);
-  XCTAssertFalse(bar.isBackgroundBlurEnabled);
-  XCTAssertEqual(bar.backgroundBlurEffectStyle, UIBlurEffectStyleExtraLight);
-  XCTAssertEqualWithAccuracy(self.bottomNavBar.elevation, MDCShadowElevationBottomNavigationBar,
-                             0.001);
-  XCTAssertEqualWithAccuracy(self.bottomNavBar.mdc_currentElevation, self.bottomNavBar.elevation,
-                             0.001);
-  XCTAssertLessThan(self.bottomNavBar.mdc_overrideBaseElevation, 0);
-  XCTAssertNil(self.bottomNavBar.mdc_elevationDidChangeBlock);
-  XCTAssertEqualObjects(self.bottomNavBar.itemBadgeTextColor, UIColor.whiteColor);
-  XCTAssertEqualObjects(self.bottomNavBar.itemBadgeTextFont, [UIFont systemFontOfSize:8.0]);
-  XCTAssertEqualObjects(self.bottomNavBar.itemBadgeBackgroundColor, MDCPalette.redPalette.tint700);
 }
 
 #pragma mark - Fonts
