@@ -1063,6 +1063,7 @@ static CGFloat SingleLineTextViewHeight(NSString *_Nullable title, UIFont *_Null
       M3CButton *m3cButton = (M3CButton *)button;
       if (m3cButton.textCanWrap) {
         m3cButton.textCanWrap = false;
+        m3cButton.titleLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
         m3cButton.titleLabel.preferredMaxLayoutWidth = 0;
       }
     }
@@ -1129,7 +1130,7 @@ static CGFloat SingleLineTextViewHeight(NSString *_Nullable title, UIFont *_Null
       if (self.isM3CButtonEnabled && [button isKindOfClass:M3CButton.class]) {
         M3CButton *m3cButton = (M3CButton *)button;
         m3cButton.textCanWrap = YES;
-        self.titleLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
+        m3cButton.titleLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
         m3cButton.titleLabel.preferredMaxLayoutWidth = maxButtonWidth;
       }
       CGRect buttonRect = button.bounds;
