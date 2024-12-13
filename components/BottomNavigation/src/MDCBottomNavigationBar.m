@@ -824,14 +824,9 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.selectionIndicatorColor = self.selectionIndicatorColor;
     itemView.selectionIndicatorSize = self.selectionIndicatorSize;
     [self configureTitleStateForItemView:itemView];
-    [self configureItemView:itemView withItem:self.barItems[i].item];
-    // TODO(b/378528228): Consolidate this inside configureItemView once clients are fully migrated
-    // to setBarItems.
-    itemView.badgeAppearance = self.itemBadgeAppearance;
-    if (self.barItems[i].badgeAppearance != nil) {
-      MDCBadgeAppearance *_Nonnull nonnullAppearance = self.barItems[i].badgeAppearance;
-      itemView.badgeAppearance = nonnullAppearance;
-    }
+    [self configureItemView:itemView
+                   withItem:self.barItems[i].item
+                 appearance:self.barItems[i].badgeAppearance];
 
     [itemView.button addTarget:self
                         action:@selector(didTouchUpInsidebarItemButton:)
@@ -913,12 +908,9 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.selected = NO;
     itemView.displayTitleInVerticalLayout = self.displayItemTitlesInVerticalLayout;
     itemView.enableVerticalLayout = self.enableVerticalLayout;
-    itemView.badgeAppearance = _itemBadgeAppearance;
 
-    itemView.selectionIndicatorColor = self.selectionIndicatorColor;
-    itemView.selectionIndicatorSize = self.selectionIndicatorSize;
     [self configureTitleStateForItemView:itemView];
-    [self configureItemView:itemView withItem:items[i]];
+    [self configureItemView:itemView withItem:items[i] appearance:self.itemBadgeAppearance];
 
     [itemView.button addTarget:self
                         action:@selector(didTouchUpInsideButton:)

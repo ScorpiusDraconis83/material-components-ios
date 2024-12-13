@@ -25,16 +25,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public
 
-- (void)configureItemView:(MDCBottomNavigationItemView *)itemView withItem:(UITabBarItem *)item {
+- (void)configureItemView:(MDCBottomNavigationItemView *)itemView
+                 withItem:(UITabBarItem *)item
+               appearance:(nullable MDCBadgeAppearance *)appearance {
   [self configure:itemView withItem:item];
   [self configureAppearanceForItemView:itemView];
   [self configurePointerInteractionForItemView:itemView];
+  if (appearance != nil) {
+    MDCBadgeAppearance *_Nonnull nonnullAppearance = appearance;
+    itemView.badgeAppearance = nonnullAppearance;
+  }
 }
 
 #pragma mark - Private
 
 - (void)configureAppearanceForItemView:(MDCBottomNavigationItemView *)itemView {
   itemView.badgeAppearance = self.itemBadgeAppearance;
+  itemView.badgeHorizontalOffset = self.itemBadgeHorizontalOffset;
   itemView.selectionIndicatorSize = self.selectionIndicatorSize;
   itemView.showsSelectionIndicator = self.showsSelectionIndicator;
 
@@ -48,10 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
   // depends on the value of rippleColor.
   itemView.rippleColor = self.rippleColor;
   itemView.selectedItemTintColor = self.selectedItemTintColor;
-
   itemView.unselectedItemTintColor = self.unselectedItemTintColor;
   itemView.selectedItemTitleColor = self.selectedItemTitleColor;
-
   itemView.selectionIndicatorColor = self.selectionIndicatorColor;
 }
 

@@ -15,6 +15,8 @@
 #import "MDCBottomNavigationBar.h"
 #import "MDCBottomNavigationItemView.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  This category extracts logic for item view configuration out of the primary MDCBottomNavigationBar
  implementation.
@@ -28,6 +30,10 @@
  @param itemView The MDCBottomNavigationItemView instance to be configured.
  @param item The item used to configure the itemView.
  */
-- (void)configureItemView:(MDCBottomNavigationItemView *)itemView withItem:(UITabBarItem *)item;
+- (void)configureItemView:(MDCBottomNavigationItemView *)itemView
+                 withItem:(UITabBarItem *)item
+               appearance:(nullable MDCBadgeAppearance *)appearance;
 
 @end
+
+NS_ASSUME_NONNULL_END
