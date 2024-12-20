@@ -20,6 +20,7 @@ __attribute__((objc_subclassing_restricted)) @interface MDCFlexibleHeaderHairlin
 @property(nonatomic, weak) id<MDCFlexibleHeaderHairlineViewDelegate> delegate;
 @end
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCFlexibleHeaderHairlineViewDelegate <NSObject>
 @required
 

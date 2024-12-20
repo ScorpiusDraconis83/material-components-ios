@@ -44,6 +44,7 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
     MDCChipFieldVerticalInset, MDCChipFieldHorizontalInset, MDCChipFieldVerticalInset,
     MDCChipFieldHorizontalInset};
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCChipFieldTextFieldDelegate <NSObject>
 
 - (void)textFieldDidDelete:(UITextField *)textField;

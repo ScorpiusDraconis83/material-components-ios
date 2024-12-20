@@ -20,6 +20,7 @@
  Delegate protocol for the MDCLegacyInkLayer. Clients may implement this protocol to receive updates
  when ink layer animations start and end.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCLegacyInkLayerDelegate <NSObject>
 
 @optional

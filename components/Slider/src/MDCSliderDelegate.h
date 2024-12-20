@@ -21,6 +21,7 @@ API_DEPRECATED_BEGIN("🤖👀 Use go/material-ios-branding UISlider instead. "
 
 @class MDCSlider;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCSliderDelegate <NSObject>
 @optional
 

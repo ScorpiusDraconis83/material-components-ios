@@ -19,6 +19,7 @@
 /**
  Delegate for MDCBottomDrawerContainerViewController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomDrawerContainerViewControllerDelegate <NSObject>
 
 /**

@@ -35,6 +35,7 @@ API_DEPRECATED_BEGIN(
 
  @seealso MDCBarButtonItemLayoutHints
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCButtonBarDelegate <NSObject>
 @optional
 

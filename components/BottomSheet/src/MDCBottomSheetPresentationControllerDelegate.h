@@ -23,6 +23,7 @@ typedef NS_ENUM(NSUInteger, MDCSheetState);
 /**
  Delegate for MDCBottomSheetPresentationController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomSheetPresentationControllerDelegate <UIAdaptivePresentationControllerDelegate>
 @optional
 

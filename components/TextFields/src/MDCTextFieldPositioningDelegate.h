@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
 
  Usually, these methods are direct mirrors of internal methods with the addition of a default value.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCTextInputPositioningDelegate <NSObject>
 
 @optional

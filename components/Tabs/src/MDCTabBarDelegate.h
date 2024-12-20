@@ -25,6 +25,7 @@ API_DEPRECATED_BEGIN("🤖👀 Use a branded MDCTabBarView instead. "
  Delegate protocol for MDCTabBar. Clients may implement this protocol to receive notifications of
  selection changes in the tab bar or to determine the bar's position.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCTabBarDelegate <UIBarPositioningDelegate>
 
 @optional

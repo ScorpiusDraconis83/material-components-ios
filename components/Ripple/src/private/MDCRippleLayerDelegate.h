@@ -20,6 +20,7 @@
  The ripple layer delegate protocol to let MDCRippleView know of the layer's
  ripple animation timeline.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCRippleLayerDelegate <CALayerDelegate>
 
 /**

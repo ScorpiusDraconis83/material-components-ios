@@ -27,6 +27,7 @@ API_DEPRECATED_BEGIN("🤖👀 Use branded M3CButton instead. "
 /**
  MDCFloatingButtonModeAnimator uses this delegate to interact with its owning context.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCFloatingButtonModeAnimatorDelegate <NSObject>
 @required
 

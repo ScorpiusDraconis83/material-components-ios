@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  The protocol for clients of the MDCBottomNavigationBarController to conform to for updates on the
  bottom navigation bar, manage selection, and other possible actions.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomNavigationBarControllerDelegate <NSObject>
 @optional
 /**

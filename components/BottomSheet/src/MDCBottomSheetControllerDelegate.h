@@ -21,6 +21,7 @@
 /**
  Delegate for MDCBottomSheetController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomSheetControllerDelegate <NSObject>
 @optional
 /**

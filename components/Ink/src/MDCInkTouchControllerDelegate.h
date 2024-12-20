@@ -23,6 +23,7 @@ API_DEPRECATED_BEGIN(
 @class MDCInkTouchController;
 @class MDCInkView;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCInkTouchControllerDelegate <NSObject>
 @optional
 

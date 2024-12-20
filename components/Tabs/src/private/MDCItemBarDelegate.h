@@ -20,6 +20,7 @@
  Delegate protocol for MDCItemBar. Clients may implement this protocol to receive notifications of
  selection changes.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCItemBarDelegate <NSObject>
 /**
  Called before the selected item changes by user action. This method is not called for programmatic

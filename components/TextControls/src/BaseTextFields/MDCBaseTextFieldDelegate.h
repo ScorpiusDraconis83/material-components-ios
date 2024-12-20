@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
 This delegate protocol for @c MDCBaseTextField and its subclasses provides updates not already
 covered by @c UITextFieldDelegate.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBaseTextFieldDelegate <NSObject>
 
 @optional

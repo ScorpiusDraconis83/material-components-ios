@@ -34,6 +34,7 @@ API_DEPRECATED(
     "This is go/material-ios-migrations#not-scriptable 🕘",
     ios(11, 12))
 API_UNAVAILABLE(tvos, watchos)
+NS_SWIFT_UI_ACTOR
 @protocol MDCAppBarViewControllerAccessibilityPerformEscapeDelegate <NSObject>
 @required
 

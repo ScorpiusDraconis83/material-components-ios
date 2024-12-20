@@ -17,6 +17,7 @@
 @class MDCAlertAction;
 @class MDCAlertController;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCAlertControllerDelegate <NSObject>
 
 @optional

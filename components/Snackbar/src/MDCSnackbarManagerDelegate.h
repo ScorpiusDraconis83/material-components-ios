@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Delegate protocol for the MDCSnackbarManager.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCSnackbarManagerDelegate <NSObject>
 
 /**

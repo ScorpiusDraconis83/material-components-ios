@@ -24,6 +24,7 @@ API_DEPRECATED_BEGIN("Use a branded UINavigationController instead.", ios(12, AP
 
  The delegate is typically the UIViewController that owns this flexible header view.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCFlexibleHeaderViewDelegate <NSObject>
 @required
 

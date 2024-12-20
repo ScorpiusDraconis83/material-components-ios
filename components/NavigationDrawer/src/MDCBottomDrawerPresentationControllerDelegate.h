@@ -21,6 +21,7 @@
 /**
  Delegate for MDCBottomSheetPresentationController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomDrawerPresentationControllerDelegate <UIAdaptivePresentationControllerDelegate>
 /**
  This method is called when the bottom drawer will change its presented state to one of the
