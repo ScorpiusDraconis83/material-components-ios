@@ -308,6 +308,15 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   }
   self.preferredContentSize =
       [self.alertView calculatePreferredContentSizeForBounds:CGRectInfinite.size];
+
+  self.alertView.messageTextView.accessibilityLabel =
+      self.messageAccessibilityLabel ?: self.message;
+
+  if ([self shouldUseAttributedStringForMessageA11Y]) {
+    self.alertView.messageTextView.accessibilityLabel = self.attributedMessage.string;
+  } else {
+    self.alertView.messageTextView.accessibilityValue = @"";
+  }
 }
 
 - (void)setMessageAccessibilityLabel:(nullable NSString *)messageAccessibilityLabel {
