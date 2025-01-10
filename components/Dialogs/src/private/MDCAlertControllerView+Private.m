@@ -25,7 +25,7 @@
 #import "MDCTypography.h"
 #import "UIFont+MaterialTypography.h"
 #import "MDCMath.h"
-#import <MDFInternationalization/MDFInternationalization.h>
+#import <MDFInternationalization/MDFRTL.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -542,7 +542,11 @@ static CGFloat SingleLineTextViewHeight(NSString *_Nullable title, UIFont *_Null
       UIButton *button = buttons[index];
       CGSize buttonSize = [button sizeThatFits:size];
       CGFloat minButtonHeight = [self buttonHeight];
-      buttonSize.height = MAX(buttonSize.height, minButtonHeight);
+      if (self.adjustButtonVerticalMargin) {
+        buttonSize.height = MAX(button.titleLabel.frame.size.height, minButtonHeight);
+      } else {
+        buttonSize.height = MAX(buttonSize.height, minButtonHeight);
+      }
       size.height += buttonSize.height;
       size.width = MAX(size.width, buttonSize.width + widthInset);
       if (button != buttons.lastObject) {
@@ -994,11 +998,18 @@ static CGFloat SingleLineTextViewHeight(NSString *_Nullable title, UIFont *_Null
   for (UIButton *button in buttons) {
     [button sizeToFit];
     CGRect buttonFrame = button.frame;
+    CGFloat buttonTitleHeight = CGRectGetHeight(buttonFrame);
+    CGFloat buttonTitleWidth = CGRectGetWidth(buttonFrame);
+    if (self.adjustButtonVerticalMargin) {
+      buttonTitleHeight = MAX(M3CDialogActionMinHeight, button.titleLabel.frame.size.height);
+      button.titleLabel.preferredMaxLayoutWidth = button.titleLabel.frame.size.width;
+      buttonTitleWidth = button.intrinsicContentSize.width;
+    }
     CGFloat minTouchTargetHeight =
         self.isM3CButtonEnabled ? M3CDialogActionMinHeight : MDCDialogActionMinTouchTarget;
     button.frame = CGRectMake(buttonFrame.origin.x, buttonFrame.origin.y,
-                              MAX(MDCDialogActionMinTouchTarget, CGRectGetWidth(buttonFrame)),
-                              MAX(minTouchTargetHeight, CGRectGetHeight(buttonFrame)));
+                              MAX(MDCDialogActionMinTouchTarget, buttonTitleWidth),
+                              MAX(minTouchTargetHeight, buttonTitleHeight));
   }
 
   if (self.isVerticalActionsLayout) {
@@ -1161,7 +1172,23 @@ static CGFloat SingleLineTextViewHeight(NSString *_Nullable title, UIFont *_Null
         UIButton *nextButton = buttons[index + 1];
         CGFloat verticalMargin = [self actionsVerticalMarginBetweenTopButton:button
                                                                 bottomButton:nextButton];
-        buttonCenter.y += multiplier * verticalMargin;
+        if (self.adjustButtonVerticalMargin) {
+          // Get the font's line height
+          CGFloat titleHeight = button.titleLabel.frame.size.height;
+          CGFloat lineHeight = button.titleLabel.font.lineHeight;
+
+          // Check if the title height exceeds the line height (indicating multi-line text)
+          BOOL isMultiLine = titleHeight > lineHeight;
+
+          if (isMultiLine) {
+            buttonCenter.y += multiplier * verticalMargin - 3;
+          } else {
+            buttonCenter.y += multiplier * verticalMargin;
+          }
+
+        } else {
+          buttonCenter.y += multiplier * verticalMargin;
+        }
       }
     }
 
