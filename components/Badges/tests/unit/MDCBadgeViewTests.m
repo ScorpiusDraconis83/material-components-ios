@@ -17,8 +17,10 @@
 
 #import "MDCBadgeView.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MDCBadgeViewTests : XCTestCase
-@property(nonatomic, strong) MDCBadgeView *badge;
+@property(nonatomic, strong, nullable) MDCBadgeView *badge;
 @end
 
 @implementation MDCBadgeViewTests
@@ -109,3 +111,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

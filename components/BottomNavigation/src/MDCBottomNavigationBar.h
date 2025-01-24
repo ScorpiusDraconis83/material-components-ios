@@ -127,6 +127,10 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
  An array of MDCBottomNavigationBarItems that is used to populate bottom navigation bar content. It
  is strongly recommended the array contain at least three items and no more than five items --
  appearance may degrade outside of this range.
+
+ If a given item has no badge appearance set, then the itemBadgeAppearance is used.
+ Additionally, if a given badge appearance has a `nil` for its textColor and/or font, then the
+ values from the itemBadgeAppearance are used.
  */
 @property(nonatomic, copy, nonnull) NSArray<MDCBottomNavigationBarItem *> *barItems;
 
@@ -349,6 +353,10 @@ traitCollectionDidChange:. The block is called after the call to the superclass.
 
  If a given UITabBarItem has set a non-nil badgeColor, then that value will be used for that item
  view's badge instead of the backgroundColor associated with this appearance object.
+
+ If a given badge appearance has set a `nil` textColor, then the default `whiteColor` will be used.
+ If a given badge appearance has set a `nil` font, then the default `systemFontOfSize:8` will be
+ used.
 
  Note that the individual itemBadge* properties will be deprecated and already act as proxies for
  modifying the itemBadgeAppearance of each badge directly.

@@ -475,26 +475,25 @@ static const CGFloat kHeightShort = 48;
   [self generateAndVerifySnapshot];
 }
 
-- (void)testClearBadgeColorsRendersClearBackgroundAndUILabelDefaultTextColor {
+- (void)testClearBadgeColorRendersClearBackgroundAndDefaultFont {
   // Given
   self.tabItem1.badgeValue = @"";
   self.tabItem2.badgeValue = @"Black on Clear";
-  self.tabItem3.badgeValue = @"Black on Green";
   self.navigationBar.frame = CGRectMake(0, 0, MDCBottomNavigationBarTestWidthiPad,
                                         MDCBottomNavigationBarTestHeightTypical);
 
   // When
-  MDCBadgeAppearance *greenAppearance = [[MDCBadgeAppearance alloc] init];
-  greenAppearance.font = [UIFont systemFontOfSize:8.0];
-  greenAppearance.backgroundColor = UIColor.greenColor;
-  greenAppearance.textColor = UIColor.blackColor;
+  MDCBadgeAppearance *normalAppearance = [[MDCBadgeAppearance alloc] init];
+  normalAppearance.font = nil;
+  normalAppearance.backgroundColor = UIColor.clearColor;
+  normalAppearance.textColor = UIColor.blackColor;
   MDCBottomNavigationBarItem *barItem1 =
       [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem1];
   MDCBottomNavigationBarItem *barItem2 =
-      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2];
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem2
+                                          badgeAppearance:normalAppearance];
   MDCBottomNavigationBarItem *barItem3 =
-      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3
-                                          badgeAppearance:greenAppearance];
+      [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem3];
   MDCBottomNavigationBarItem *barItem4 =
       [[MDCBottomNavigationBarItem alloc] initWithBarItem:self.tabItem4];
   MDCBottomNavigationBarItem *barItem5 =
@@ -510,10 +509,10 @@ static const CGFloat kHeightShort = 48;
   [self generateAndVerifySnapshot];
 }
 
-- (void)testNilBadgeColorsRendersTintBackgroundAndUILabelDefaultTextColor {
+- (void)testNilBadgeColorsRendersTintBackgroundAndNavigationBarDefaultTextColor {
   // Given
   self.tabItem1.badgeValue = @"";
-  self.tabItem2.badgeValue = @"Black on Tint Color";
+  self.tabItem2.badgeValue = @"White on Tint Color";
   self.tabItem3.badgeValue = @"Black on Green";
   self.navigationBar.frame = CGRectMake(0, 0, MDCBottomNavigationBarTestWidthiPad,
                                         MDCBottomNavigationBarTestHeightTypical);
@@ -545,6 +544,24 @@ static const CGFloat kHeightShort = 48;
   [self generateAndVerifySnapshot];
 }
 
+- (void)testDefaultBadgeTextFont {
+  // Given
+  self.tabItem1.badgeValue = @"";
+  self.tabItem2.badgeValue = @"10";
+  self.navigationBar.frame = CGRectMake(0, 0, MDCBottomNavigationBarTestWidthTypical,
+                                        MDCBottomNavigationBarTestHeightTypical);
+
+  // When
+  MDCBadgeAppearance *badgeAppearance = [[MDCBadgeAppearance alloc] init];
+  badgeAppearance.font = nil;
+  self.navigationBar.itemBadgeAppearance = badgeAppearance;
+  self.navigationBar.items =
+      @[ self.tabItem1, self.tabItem2, self.tabItem3, self.tabItem4, self.tabItem5 ];
+
+  // Then
+  [self generateAndVerifySnapshot];
+}
+
 - (void)testCustomBadgeTextFontSetBeforeItems {
   // Given
   self.tabItem1.badgeValue = @"";
@@ -563,7 +580,7 @@ static const CGFloat kHeightShort = 48;
   [self generateAndVerifySnapshot];
 }
 
-- (void)testCustomBadgeTextFontSetAfterItems {
+- (void)testCustomBadgeTextFontSetAfterItemsUsesDefaultBadgeColor {
   // Given
   self.tabItem1.badgeValue = @"";
   self.tabItem2.badgeValue = @"10";

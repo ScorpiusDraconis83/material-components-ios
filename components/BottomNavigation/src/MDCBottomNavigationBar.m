@@ -824,6 +824,16 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.selectionIndicatorColor = self.selectionIndicatorColor;
     itemView.selectionIndicatorSize = self.selectionIndicatorSize;
     [self configureTitleStateForItemView:itemView];
+
+    // If a given badge appearance has a `nil` for its textColor and font, then the values from the
+    // itemBadgeAppearance are used.
+    if (!self.barItems[i].badgeAppearance.textColor) {
+      self.barItems[i].badgeAppearance.textColor = _itemBadgeAppearance.textColor;
+    }
+    if (!self.barItems[i].badgeAppearance.font) {
+      self.barItems[i].badgeAppearance.font = _itemBadgeAppearance.font;
+    }
+
     [self configureItemView:itemView
                    withItem:self.barItems[i].item
                  appearance:self.barItems[i].badgeAppearance];
@@ -1278,6 +1288,16 @@ static BOOL gEnablePerformantShadow = NO;
 
 - (void)setItemBadgeAppearance:(MDCBadgeAppearance *)itemBadgeAppearance {
   _itemBadgeAppearance = [itemBadgeAppearance copy];
+
+  // Setting default values if `nil` is received for the appearance properties.
+  // The default value for the textColor is `white` and the default value for the font is
+  // `systemFontOfSize:8`.
+  if (!_itemBadgeAppearance.textColor) {
+    _itemBadgeAppearance.textColor = [UIColor whiteColor];
+  }
+  if (!_itemBadgeAppearance.font) {
+    _itemBadgeAppearance.font = [UIFont systemFontOfSize:kBadgeFontSize];
+  }
 
   for (NSUInteger i = 0; i < [self itemCount]; ++i) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
