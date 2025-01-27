@@ -185,6 +185,11 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
 @property(nonatomic, assign) BOOL showsSelectionIndicator;
 
 /**
+ If true, the tab icons will be placed in a square container for layout.
+*/
+@property(nonatomic, assign) BOOL enableSquareImages;
+
+/**
  Size of the active indicator.
 
  Only has an impact if @c useActiveIndicator is set to @c YES.

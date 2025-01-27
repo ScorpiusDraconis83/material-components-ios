@@ -913,7 +913,6 @@ static BOOL gEnablePerformantShadow = NO;
   for (NSUInteger i = 0; i < items.count; i++) {
     MDCBottomNavigationItemView *itemView =
         [[MDCBottomNavigationItemView alloc] initWithFrame:CGRectZero];
-
     itemView.rippleTouchController.delegate = self;
     itemView.selected = NO;
     itemView.displayTitleInVerticalLayout = self.displayItemTitlesInVerticalLayout;
@@ -1339,6 +1338,13 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.titleBelowIcon = ![self itemViewsShouldAlwaysHideTitles];
   } else {
     itemView.titleBelowIcon = self.isTitleBelowIcon;
+  }
+}
+
+- (void)setEnableSquareImages:(BOOL)enableSquareImages {
+  _enableSquareImages = enableSquareImages;
+  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
+    itemView.enableSquareImages = enableSquareImages;
   }
 }
 
