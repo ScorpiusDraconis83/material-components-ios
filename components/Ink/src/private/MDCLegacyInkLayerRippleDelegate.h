@@ -22,6 +22,7 @@ API_DEPRECATED_BEGIN(
 
 @class MDCLegacyInkLayerRipple;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCLegacyInkLayerRippleDelegate <MDCLegacyInkLayerDelegate>
 
 /// Called if MDCLegacyInkLayerRipple did start animating.

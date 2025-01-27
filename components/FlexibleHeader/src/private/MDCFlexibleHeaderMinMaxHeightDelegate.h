@@ -22,6 +22,7 @@ API_DEPRECATED_BEGIN("Use a branded UINavigationController instead.", ios(12, AP
  The delegate protocol through which MDCFlexibleHeaderMinMaxHeight communicates changes in the
  minimum and maximum height.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCFlexibleHeaderMinMaxHeightDelegate <NSObject>
 @required
 

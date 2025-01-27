@@ -24,7 +24,6 @@
 #import "MaterialTextControls+OutlinedTextFields.h"
 #import "MDCOutlinedTextField+MaterialTheming.h"
 #import "MaterialTextControls+UnderlinedTextFields.h"
-#import "MDCUnderlinedTextField+MaterialTheming.h"
 #import "MaterialContainerScheme.h"
 
 @interface MDCTextControlTextFieldContentViewController ()
@@ -65,7 +64,6 @@
   if (self.shouldAddDebugBorder) {
     [self addBorderToTextField:textField];
   }
-  [textField applyThemeWithScheme:self.containerScheme];
   return textField;
 }
 
@@ -230,9 +228,6 @@
           } else if ([textField isKindOfClass:[MDCOutlinedTextField class]]) {
             MDCOutlinedTextField *outlinedTextField = (MDCOutlinedTextField *)textField;
             [outlinedTextField applyErrorThemeWithScheme:self.containerScheme];
-          } else if ([textField isKindOfClass:[MDCUnderlinedTextField class]]) {
-            MDCUnderlinedTextField *underlinedTextField = (MDCUnderlinedTextField *)textField;
-            [underlinedTextField applyErrorThemeWithScheme:self.containerScheme];
           }
           if (isEven) {
             textField.leadingAssistiveLabel.text = @"Suspendisse quam elit, mattis sit amet justo "
@@ -248,9 +243,6 @@
           } else if ([textField isKindOfClass:[MDCOutlinedTextField class]]) {
             MDCOutlinedTextField *outlinedTextField = (MDCOutlinedTextField *)textField;
             [outlinedTextField applyThemeWithScheme:self.containerScheme];
-          } else if ([textField isKindOfClass:[MDCUnderlinedTextField class]]) {
-            MDCUnderlinedTextField *underlinedTextField = (MDCUnderlinedTextField *)textField;
-            [underlinedTextField applyThemeWithScheme:self.containerScheme];
           }
           if (isEven) {
             textField.leadingAssistiveLabel.text = @"This is helper text.";

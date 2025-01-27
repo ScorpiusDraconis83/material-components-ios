@@ -22,6 +22,7 @@ API_DEPRECATED_BEGIN(
     "This is go/material-ios-migrations#not-scriptable 🕘",
     ios(12, 12))
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCMultilineTextInputLayoutDelegate <NSObject>
 
 @optional

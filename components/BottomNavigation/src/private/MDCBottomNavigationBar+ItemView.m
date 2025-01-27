@@ -14,42 +14,40 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MDCAvailability.h"
 #import "MDCBottomNavigationBar.h"
 #import "MDCBottomNavigationBar+ItemView.h"
 #import "MDCBottomNavigationBar+Private.h"
 #import "MDCBottomNavigationItemView.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation MDCBottomNavigationBar (ItemViewConfiguration)
 
 #pragma mark - Public
 
-- (void)configureItemView:(MDCBottomNavigationItemView *)itemView withItem:(UITabBarItem *)item {
+- (void)configureItemView:(MDCBottomNavigationItemView *)itemView
+                 withItem:(UITabBarItem *)item
+               appearance:(nullable MDCBadgeAppearance *)appearance {
   [self configure:itemView withItem:item];
   [self configureAppearanceForItemView:itemView];
   [self configurePointerInteractionForItemView:itemView];
+  if (appearance != nil) {
+    MDCBadgeAppearance *_Nonnull nonnullAppearance = appearance;
+    itemView.badgeAppearance = nonnullAppearance;
+  }
 }
 
 #pragma mark - Private
 
 - (void)configureAppearanceForItemView:(MDCBottomNavigationItemView *)itemView {
   itemView.badgeAppearance = self.itemBadgeAppearance;
+  itemView.badgeHorizontalOffset = self.itemBadgeHorizontalOffset;
   itemView.selectionIndicatorSize = self.selectionIndicatorSize;
   itemView.showsSelectionIndicator = self.showsSelectionIndicator;
-
-  // TODO(b/234850214): Delete once everyone has migrated to itemBadgeAppearance.
-  [self configureBadgeForItemViewLegacy:itemView];
 
   [self configureColorsForItemView:itemView];
   [self configureMarginForItemView:itemView];
   [self configureTitleForItemView:itemView];
-}
-
-// TODO(b/234850214): Delete once everyone has migrated to itemBadgeAppearance.
-- (void)configureBadgeForItemViewLegacy:(MDCBottomNavigationItemView *)itemView {
-  itemView.badgeColor = self.itemBadgeBackgroundColor;
-  itemView.badgeFont = self.itemBadgeTextFont;
-  itemView.badgeTextColor = self.itemBadgeTextColor;
 }
 
 - (void)configureColorsForItemView:(MDCBottomNavigationItemView *)itemView {
@@ -57,10 +55,8 @@
   // depends on the value of rippleColor.
   itemView.rippleColor = self.rippleColor;
   itemView.selectedItemTintColor = self.selectedItemTintColor;
-
   itemView.unselectedItemTintColor = self.unselectedItemTintColor;
   itemView.selectedItemTitleColor = self.selectedItemTitleColor;
-
   itemView.selectionIndicatorColor = self.selectionIndicatorColor;
 }
 
@@ -113,3 +109,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

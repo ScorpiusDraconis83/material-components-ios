@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
  The ripple view delegate protocol. Clients may implement this protocol to receive updates on
  the ripple's animation lifecycle.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCRippleViewDelegate <NSObject>
 
 @optional

@@ -370,7 +370,6 @@ Text fields and text areas support Material Theming using a Container Scheme. Th
 In order to achieve something like the examples shown above, add one of the relevant theming subspecs to your `Podfile`:
 
 ```bash
-pod 'MaterialComponents/TextControls+FilledTextAreasTheming'
 pod 'MaterialComponents/TextControls+FilledTextFieldsTheming'
 pod 'MaterialComponents/TextControls+OutlinedTextAreasTheming'
 pod 'MaterialComponents/TextControls+OutlinedTextFieldsTheming'
@@ -390,7 +389,6 @@ Next, import the relevant target or file.
 #### Swift
 
 ```swift
-import MaterialComponents.MaterialTextControls_FilledTextAreasTheming
 import MaterialComponents.MaterialTextControls_FilledTextFieldsTheming
 import MaterialComponents.MaterialTextControls_OutlinedTextAreasTheming
 import MaterialComponents.MaterialTextControls_OutlinedTextFieldsTheming
@@ -399,7 +397,6 @@ import MaterialComponents.MaterialTextControls_OutlinedTextFieldsTheming
 #### Objective-C
 
 ```objc
-#import "MaterialTextControls+FilledTextAreasTheming.h"
 #import "MaterialTextControls+FilledTextFieldsTheming.h"
 #import "MaterialTextControls+OutlinedTextAreasTheming.h"
 #import "MaterialTextControls+OutlinedTextFieldsTheming.h"

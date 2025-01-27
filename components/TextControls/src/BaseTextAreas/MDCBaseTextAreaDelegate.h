@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
 This delegate protocol for @c MDCBaseTextArea and its subclasses provides updates about the text
 area unrelated to the text area's contained @c textView.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBaseTextAreaDelegate <NSObject>
 
 @optional

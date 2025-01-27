@@ -14,20 +14,20 @@
 
 #import "MDCProgressView.h"
 
+#import <CoreGraphics/CoreGraphics.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 
 #include <tgmath.h>
 
 #import "MDCPalettes.h"
-#import "MaterialPalettes.h"
 #import "MDCProgressGradientView.h"
 #import "MDCProgressLayerView.h"
 
 #import "MaterialProgressViewStrings.h"
 #import "MaterialProgressViewStrings_table.h"
-#import "MaterialMath.h"
-#import <MDFInternationalization/MDFInternationalization.h>
+#import "MDCMath.h"
+#import <MDFInternationalization/MDFRTL.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -325,10 +325,12 @@ static NSString *const kBundle = @"MaterialProgressView.bundle";
 }
 
 - (void)setProgress:(float)progress {
-  if (progress > 1)
+  if (progress > 1) {
     progress = 1;
-  if (progress < 0)
+  }
+  if (progress < 0) {
     progress = 0;
+  }
   if (!_enableDeterminateStopMark) {
     _progress = progress;
   }
@@ -571,7 +573,16 @@ static NSString *const kBundle = @"MaterialProgressView.bundle";
   CGRect progressFrame = self.bounds;
   if (_mode == MDCProgressViewModeDeterminate) {
     // Update progressView with the current progress value.
+#if defined(TARGET_OS_VISION) && TARGET_OS_VISION
+    // For code review, use the review queue listed in go/material-visionos-review.
+    UITraitCollection *current = [UITraitCollection currentTraitCollection];
+    CGFloat scale = current ? [current displayScale] : 1.0;
+    if (scale <= 0) {
+      scale = 1.0;
+    }
+#else
     CGFloat scale = self.window.screen.scale > 0 ? self.window.screen.scale : 1;
+#endif
     CGFloat pointWidth = self.progress * CGRectGetWidth(self.bounds);
     CGFloat pixelAlignedWidth = round(pointWidth * scale) / scale;
     progressFrame = CGRectMake(0, 0, pixelAlignedWidth, CGRectGetHeight(self.bounds));
@@ -779,15 +790,7 @@ static NSString *const kBundle = @"MaterialProgressView.bundle";
   determinateProgressBarLayer.lineCap = kCALineCapButt;
   determinateProgressBarLayer.frame = CGRectMake(0, 0, 0, self.bounds.size.height);
   determinateProgressBarLayer.fillColor = _progressTintColor.CGColor;
-
-  CGRect pathRect = CGRectMake(0, 0, 0, self.bounds.size.height);
-
-  if (determinateProgressBarLayer.cornerRadius > 0) {
-    determinateProgressBarLayer.path =
-        [UIBezierPath bezierPathWithRoundedRect:pathRect cornerRadius:_cornerRadius].CGPath;
-  } else {
-    determinateProgressBarLayer.path = [UIBezierPath bezierPathWithRect:pathRect].CGPath;
-  }
+  determinateProgressBarLayer.path = [self makeToPathForBarWithProgress:_progress].CGPath;
 
   return determinateProgressBarLayer;
 }
@@ -798,6 +801,8 @@ static NSString *const kBundle = @"MaterialProgressView.bundle";
 
   CGFloat x = (progress == 0) ? rect.origin.x - MDCProgressViewGapWidth - 3 : rect.origin.x - 3;
   CGFloat y = rect.origin.y - 1;
+
+  // TODO(b/358368816): Fix the bug where the gap does not take into account changes in height.
 
   // Draws a square shape with concave sides that looks like this:
   //    ---
@@ -832,14 +837,15 @@ static NSString *const kBundle = @"MaterialProgressView.bundle";
 
 - (UIBezierPath *)makeToPathForBarWithProgress:(CGFloat)progress {
   CGFloat cornerRadiusOffset = (_cornerRadius > 0 ? _cornerRadius / 2 : 0);
-  CGRect rect = CGRectMake(0, 0, self.bounds.size.width * progress - cornerRadiusOffset,
-                           self.bounds.size.height);
+  CGSize size = self.bounds.size;
   UIBezierPath *path;
 
+  CGRect pathRect = CGRectMake(0, 0, size.width * progress - cornerRadiusOffset, size.height);
+
   if (_cornerRadius > 0) {
-    path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:_cornerRadius];
+    path = [UIBezierPath bezierPathWithRoundedRect:pathRect cornerRadius:_cornerRadius];
   } else {
-    path = [UIBezierPath bezierPathWithRect:rect];
+    path = [UIBezierPath bezierPathWithRect:pathRect];
   }
   return path;
 }

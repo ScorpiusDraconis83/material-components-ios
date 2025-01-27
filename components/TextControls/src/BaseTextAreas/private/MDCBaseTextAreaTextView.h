@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
  This protocol allows the MDCBaseTextAreaTextView to inform the text area of important responder
  events.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBaseTextAreaTextViewDelegate <NSObject>
 
 /**

@@ -13,6 +13,7 @@
 // limitations under the License.
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import "MDCAvailability.h"
 #import "MDCBottomNavigationBar.h"
@@ -22,6 +23,7 @@
 #import "private/MDCBottomNavigationItemView.h"
 #import "MDCBadgeAppearance.h"
 #import "MDCBottomNavigationBarDelegate.h"
+#import "MDCBottomNavigationBarItem.h"
 #import "MDCBottomNavigationBar+ItemView.h"
 #import "MDCPalettes.h"
 #import "MDCRippleTouchController.h"
@@ -39,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // KVO context
 static char *const kKVOContextMDCBottomNavigationBar = "kKVOContextMDCBottomNavigationBar";
+static char *const kKVOContextMDCBottomNavigationBarItem = "kKVOContextMDCBottomNavigationBarItem";
 
 static const CGFloat kMinItemWidth = 80;
 static const CGFloat kPreferredItemWidth = 120;
@@ -130,11 +133,10 @@ static BOOL gEnablePerformantShadow = NO;
   _rippleEnabled = YES;
   _itemsAlignmentInVerticalMode = MDCNavigationBarItemsVerticalAlignmentCenter;
   _itemBadgeAppearance = [[MDCBadgeAppearance alloc] init];
+  _itemBadgeAppearance.textColor = UIColor.whiteColor;
+  _itemBadgeAppearance.font = [UIFont systemFontOfSize:kBadgeFontSize];
+  _itemBadgeAppearance.backgroundColor = MDCPalette.redPalette.tint700;
 
-  // TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
-  _itemBadgeTextColor = UIColor.whiteColor;
-  _itemBadgeTextFont = [UIFont systemFontOfSize:kBadgeFontSize];
-  _itemBadgeBackgroundColor = MDCPalette.redPalette.tint700;
   _itemsHorizontalPadding = kDefaultItemHorizontalPadding;
   _showsSelectionIndicator = NO;
   _selectionIndicatorColor = [UIColor colorWithRed:195.f / 255.f
@@ -246,6 +248,10 @@ static BOOL gEnablePerformantShadow = NO;
   [self setNeedsLayout];
 }
 
+- (NSUInteger)itemCount {
+  return self.barItems.count > 0 ? self.barItems.count : self.items.count;
+}
+
 - (CGSize)intrinsicContentSize {
   if (self.enableVerticalLayout) {
     return CGSizeMake([self barWidthForVerticalLayout], UIViewNoIntrinsicMetric);
@@ -253,7 +259,8 @@ static BOOL gEnablePerformantShadow = NO;
     CGFloat height = [self calculateBarHeight];
     CGFloat itemWidth = [self widthForItemsWhenCenteredWithAvailableWidth:CGFLOAT_MAX
                                                                    height:height];
-    return CGSizeMake(itemWidth * self.items.count, height);
+
+    return CGSizeMake(itemWidth * [self itemCount], height);
   }
 }
 
@@ -266,9 +273,10 @@ static BOOL gEnablePerformantShadow = NO;
                               self.itemsHorizontalPadding * 2);
   }
   maxItemWidth = MIN(kMaxItemWidth, maxItemWidth);
-  CGFloat totalWidth = maxItemWidth * self.items.count;
+  NSUInteger itemCount = [self itemCount];
+  CGFloat totalWidth = maxItemWidth * itemCount;
   if (totalWidth > availableWidth) {
-    maxItemWidth = availableWidth / self.items.count;
+    maxItemWidth = availableWidth / itemCount;
   }
   if (maxItemWidth < kMinItemWidth) {
     maxItemWidth = kMinItemWidth;
@@ -475,6 +483,18 @@ static BOOL gEnablePerformantShadow = NO;
 
 - (void)dealloc {
   [self removeObserversFromTabBarItems];
+  [self removeObserversFromBarItems];
+}
+
+- (NSArray<NSString *> *)barItemKVOKeyPaths {
+  static NSArray<NSString *> *keyPaths;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    keyPaths = @[
+      NSStringFromSelector(@selector(item)),
+    ];
+  });
+  return keyPaths;
 }
 
 - (NSArray<NSString *> *)kvoKeyPaths {
@@ -501,6 +521,56 @@ static BOOL gEnablePerformantShadow = NO;
   return keyPaths;
 }
 
+- (void)addObserversToTabBarItemsForBarItems {
+  NSArray<NSString *> *keyPaths = [self kvoKeyPaths];
+  NSArray<NSString *> *barItemKeyPaths = [self barItemKVOKeyPaths];
+  for (MDCBottomNavigationBarItem *barItem in self.barItems) {
+    for (NSString *keyPath in keyPaths) {
+      [barItem.item addObserver:self
+                     forKeyPath:keyPath
+                        options:NSKeyValueObservingOptionNew
+                        context:kKVOContextMDCBottomNavigationBar];
+    }
+    for (NSString *keyPath in barItemKeyPaths) {
+      [barItem addObserver:self
+                forKeyPath:keyPath
+                   options:NSKeyValueObservingOptionNew
+                   context:kKVOContextMDCBottomNavigationBarItem];
+    }
+  }
+}
+
+- (void)removeObserversFromBarItems {
+  NSArray<NSString *> *keyPaths = [self kvoKeyPaths];
+  NSArray<NSString *> *barItemKeyPaths = [self barItemKVOKeyPaths];
+  for (MDCBottomNavigationBarItem *barItem in self.barItems) {
+    for (NSString *keyPath in keyPaths) {
+      @try {
+        [barItem.item removeObserver:self
+                          forKeyPath:keyPath
+                             context:kKVOContextMDCBottomNavigationBar];
+      } @catch (NSException *exception) {
+        if (exception) {
+          // No need to do anything if there are no observers.
+        }
+      }
+    }
+    for (NSString *keyPath in barItemKeyPaths) {
+      @try {
+        [barItem removeObserver:self
+                     forKeyPath:keyPath
+                        context:kKVOContextMDCBottomNavigationBarItem];
+      } @catch (NSException *exception) {
+        if (exception) {
+          // No need to do anything if there are no observers.
+        }
+      }
+    }
+  }
+}
+
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)addObserversToTabBarItems {
   NSArray<NSString *> *keyPaths = [self kvoKeyPaths];
   for (UITabBarItem *item in self.items) {
@@ -513,6 +583,8 @@ static BOOL gEnablePerformantShadow = NO;
   }
 }
 
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)removeObserversFromTabBarItems {
   NSArray<NSString *> *keyPaths = [self kvoKeyPaths];
   for (UITabBarItem *item in self.items) {
@@ -537,6 +609,18 @@ static BOOL gEnablePerformantShadow = NO;
       return;
     }
     NSUInteger itemIndex = [self.items indexOfObject:object];
+    // Since the object returned is of type UITabBarItem, we need to create an array from the
+    // barItems array and get the index of the UITabBarItem.
+    if (self.barItems.count > 0) {
+      itemIndex = NSNotFound;
+      for (NSUInteger i = 0; i < self.barItems.count; i++) {
+        if ([self.barItems[i].item isEqual:object]) {
+          itemIndex = i;
+          break;
+        }
+      }
+    }
+
     if (itemIndex == NSNotFound || itemIndex >= _itemViews.count) {
       return;
     }
@@ -576,6 +660,25 @@ static BOOL gEnablePerformantShadow = NO;
                    isEqualToString:NSStringFromSelector(@selector(largeContentSizeImageInsets))]) {
       itemView.largeContentImageInsets = [newValue UIEdgeInsetsValue];
     }
+  } else if (context == kKVOContextMDCBottomNavigationBarItem) {
+    if (!object) {
+      return;
+    }
+    NSUInteger itemIndex = [self.barItems indexOfObject:object];
+
+    if (itemIndex == NSNotFound || itemIndex >= _itemViews.count) {
+      return;
+    }
+    id newValue = [object valueForKey:keyPath];
+    if (newValue == [NSNull null]) {
+      newValue = nil;
+    }
+
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(item))]) {
+      // Remove all existing item views and repopulate them with the new bar items.
+      [self removeItemViews];
+      [self updateBarItems];
+    }
   } else {
     [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
   }
@@ -599,7 +702,7 @@ static BOOL gEnablePerformantShadow = NO;
 }
 
 - (nullable UITabBarItem *)tabBarItemForPoint:(CGPoint)point {
-  for (NSUInteger i = 0; (i < self.itemViews.count) && (i < self.items.count); i++) {
+  for (NSUInteger i = 0; (i < self.itemViews.count) && (i < [self itemCount]); i++) {
     UIView *itemView = self.itemViews[i];
     BOOL isPointInView = CGRectContainsPoint(itemView.frame, point);
     if (isPointInView) {
@@ -638,6 +741,27 @@ static BOOL gEnablePerformantShadow = NO;
 
 #pragma mark - Touch handlers
 
+- (void)didTouchUpInsidebarItemButton:(UIButton *)button {
+  for (NSUInteger i = 0; i < self.barItems.count; i++) {
+    MDCBottomNavigationBarItem *barItem = self.barItems[i];
+    MDCBottomNavigationItemView *itemView = self.itemViews[i];
+    if (itemView.button == button) {
+      BOOL shouldSelect = YES;
+      if ([self.delegate respondsToSelector:@selector(bottomNavigationBar:shouldSelectItem:)]) {
+        shouldSelect = [self.delegate bottomNavigationBar:self shouldSelectItem:barItem.item];
+      }
+      if (shouldSelect) {
+        [self setSelectedBarItem:barItem animated:YES];
+        if ([self.delegate respondsToSelector:@selector(bottomNavigationBar:didSelectItem:)]) {
+          [self.delegate bottomNavigationBar:self didSelectItem:barItem.item];
+        }
+      }
+    }
+  }
+}
+
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)didTouchUpInsideButton:(UIButton *)button {
   for (NSUInteger i = 0; i < self.items.count; i++) {
     UITabBarItem *item = self.items[i];
@@ -659,8 +783,115 @@ static BOOL gEnablePerformantShadow = NO;
 
 #pragma mark - Setters
 
+- (void)setBarItems:(NSArray<MDCBottomNavigationBarItem *> *)barItems {
+  if ([_barItems isEqual:barItems] || _barItems == barItems) {
+    return;
+  }
+  // If clients report conflicting gesture recognizers please see proposed solution in the
+  // internal document: go/mdc-ios-bottomnavigation-largecontentvieweritem
+  [self addInteraction:[[UILargeContentViewerInteraction alloc] initWithDelegate:self]];
+
+  [self removeItemViews];
+  _barItems = [barItems copy];
+  [self updateBarItems];
+}
+
+- (void)removeItemViews {
+  // Remove existing item views from the bottom navigation so it can be repopulated with new items.
+  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
+    [itemView removeFromSuperview];
+  }
+  if (self.itemViews.count > 0) {
+    [self.itemViews removeAllObjects];
+    [self.itemViewHeightConstraints removeAllObjects];
+    [self.itemViewWidthConstraints removeAllObjects];
+    [self removeObserversFromBarItems];
+  }
+}
+
+- (void)updateBarItems {
+  CGFloat barHeight = [self calculateBarHeight];
+
+  for (NSUInteger i = 0; i < self.barItems.count; i++) {
+    MDCBottomNavigationItemView *itemView =
+        [[MDCBottomNavigationItemView alloc] initWithFrame:CGRectZero];
+
+    itemView.rippleTouchController.delegate = self;
+    itemView.selected = NO;
+    itemView.displayTitleInVerticalLayout = self.displayItemTitlesInVerticalLayout;
+    itemView.enableVerticalLayout = self.enableVerticalLayout;
+
+    itemView.selectionIndicatorColor = self.selectionIndicatorColor;
+    itemView.selectionIndicatorSize = self.selectionIndicatorSize;
+    [self configureTitleStateForItemView:itemView];
+
+    // If a given badge appearance has a `nil` for its textColor and font, then the values from the
+    // itemBadgeAppearance are used.
+    if (!self.barItems[i].badgeAppearance.textColor) {
+      self.barItems[i].badgeAppearance.textColor = _itemBadgeAppearance.textColor;
+    }
+    if (!self.barItems[i].badgeAppearance.font) {
+      self.barItems[i].badgeAppearance.font = _itemBadgeAppearance.font;
+    }
+
+    [self configureItemView:itemView
+                   withItem:self.barItems[i].item
+                 appearance:self.barItems[i].badgeAppearance];
+
+    [itemView.button addTarget:self
+                        action:@selector(didTouchUpInsidebarItemButton:)
+              forControlEvents:UIControlEventTouchUpInside];
+
+    [self.itemViews addObject:itemView];
+    [self.itemsLayoutView addArrangedSubview:itemView];
+    itemView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint *itemViewHeightConstraint =
+        [itemView.heightAnchor constraintEqualToConstant:barHeight];
+    // This priority is set to low to avoid conflict of constraints due to the itemView's height
+    // being the same as the bar.
+    itemViewHeightConstraint.priority = UILayoutPriorityDefaultLow;
+    [self.itemViewHeightConstraints addObject:itemViewHeightConstraint];
+    NSLayoutConstraint *itemViewWidthConstraint =
+        [itemView.widthAnchor constraintEqualToConstant:kDefaultVerticalLayoutWidth];
+    // This priority is set to low to avoid conflict of constraints due to the itemView's width
+    // being the same as the bar.
+    itemViewWidthConstraint.priority = UILayoutPriorityDefaultLow;
+    [self.itemViewWidthConstraints addObject:itemViewWidthConstraint];
+  }
+
+  self.selectedBarItem = nil;
+  [NSLayoutConstraint activateConstraints:self.itemViewHeightConstraints];
+  [self loadConstraints];
+  [self addObserversToTabBarItemsForBarItems];
+  [self invalidateIntrinsicContentSize];
+  [self setNeedsLayout];
+}
+
+- (void)setSelectedBarItem:(nullable MDCBottomNavigationBarItem *)selectedBarItem {
+  [self setSelectedBarItem:selectedBarItem animated:NO];
+}
+
+- (void)setSelectedBarItem:(nullable MDCBottomNavigationBarItem *)selectedBarItem
+                  animated:(BOOL)animated {
+  if (_selectedBarItem == selectedBarItem) {
+    return;
+  }
+  _selectedBarItem = selectedBarItem;
+  for (NSUInteger i = 0; i < self.barItems.count; i++) {
+    MDCBottomNavigationBarItem *barItem = self.barItems[i];
+    MDCBottomNavigationItemView *itemView = self.itemViews[i];
+    if (selectedBarItem == barItem) {
+      [itemView setSelected:YES animated:animated];
+    } else {
+      [itemView setSelected:NO animated:animated];
+    }
+  }
+}
+
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)setItems:(NSArray<UITabBarItem *> *)items {
-  if ([_items isEqual:items] || _items == items) {
+  if ([_items isEqual:items] || _items == items || _barItems.count > 0) {
     return;
   }
   // If clients report conflicting gesture recognizers please see proposed solution in the
@@ -682,16 +913,13 @@ static BOOL gEnablePerformantShadow = NO;
   for (NSUInteger i = 0; i < items.count; i++) {
     MDCBottomNavigationItemView *itemView =
         [[MDCBottomNavigationItemView alloc] initWithFrame:CGRectZero];
-
     itemView.rippleTouchController.delegate = self;
     itemView.selected = NO;
     itemView.displayTitleInVerticalLayout = self.displayItemTitlesInVerticalLayout;
     itemView.enableVerticalLayout = self.enableVerticalLayout;
 
-    itemView.selectionIndicatorColor = self.selectionIndicatorColor;
-    itemView.selectionIndicatorSize = self.selectionIndicatorSize;
     [self configureTitleStateForItemView:itemView];
-    [self configureItemView:itemView withItem:items[i]];
+    [self configureItemView:itemView withItem:items[i] appearance:self.itemBadgeAppearance];
 
     [itemView.button addTarget:self
                         action:@selector(didTouchUpInsideButton:)
@@ -722,10 +950,14 @@ static BOOL gEnablePerformantShadow = NO;
   [self setNeedsLayout];
 }
 
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)setSelectedItem:(nullable UITabBarItem *)selectedItem {
   [self setSelectedItem:selectedItem animated:NO];
 }
 
+// TODO(b/378528228): Remove this function and associated logic when clients are fully migrated to
+// setBarItems.
 - (void)setSelectedItem:(UITabBarItem *)selectedItem animated:(BOOL)animated {
   if (_selectedItem == selectedItem) {
     return;
@@ -747,7 +979,7 @@ static BOOL gEnablePerformantShadow = NO;
     return;
   }
   _itemsContentVerticalMargin = itemsContentsVerticalMargin;
-  for (NSUInteger i = 0; i < self.items.count; i++) {
+  for (NSUInteger i = 0; i < [self itemCount]; i++) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
     itemView.contentVerticalMargin = itemsContentsVerticalMargin;
   }
@@ -760,7 +992,7 @@ static BOOL gEnablePerformantShadow = NO;
     return;
   }
   _itemsContentHorizontalMargin = itemsContentHorizontalMargin;
-  for (NSUInteger i = 0; i < self.items.count; i++) {
+  for (NSUInteger i = 0; i < [self itemCount]; i++) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
     itemView.contentHorizontalMargin = itemsContentHorizontalMargin;
   }
@@ -1045,7 +1277,7 @@ static BOOL gEnablePerformantShadow = NO;
 - (void)setRippleColor:(nullable UIColor *)rippleColor {
   _rippleColor = rippleColor;
 
-  for (NSUInteger i = 0; i < self.items.count; ++i) {
+  for (NSUInteger i = 0; i < [self itemCount]; ++i) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
     itemView.rippleColor = _rippleColor;
   }
@@ -1056,50 +1288,31 @@ static BOOL gEnablePerformantShadow = NO;
 - (void)setItemBadgeAppearance:(MDCBadgeAppearance *)itemBadgeAppearance {
   _itemBadgeAppearance = [itemBadgeAppearance copy];
 
-  for (NSUInteger i = 0; i < self.items.count; ++i) {
+  // Setting default values if `nil` is received for the appearance properties.
+  // The default value for the textColor is `white` and the default value for the font is
+  // `systemFontOfSize:8`.
+  if (!_itemBadgeAppearance.textColor) {
+    _itemBadgeAppearance.textColor = [UIColor whiteColor];
+  }
+  if (!_itemBadgeAppearance.font) {
+    _itemBadgeAppearance.font = [UIFont systemFontOfSize:kBadgeFontSize];
+  }
+
+  for (NSUInteger i = 0; i < [self itemCount]; ++i) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
-    itemView.badgeAppearance = _itemBadgeAppearance;
+    if (self.barItems.count > 0 && self.barItems[i].badgeAppearance != nil) {
+      itemView.badgeAppearance = self.barItems[i].badgeAppearance;
+    } else {
+      itemView.badgeAppearance = _itemBadgeAppearance;
+    }
   }
 }
 
 - (void)setItemBadgeHorizontalOffset:(CGFloat)itemBadgeHorizontalOffset {
   _itemBadgeHorizontalOffset = itemBadgeHorizontalOffset;
-
-  for (NSUInteger i = 0; i < self.items.count; ++i) {
+  for (NSUInteger i = 0; i < [self itemCount]; ++i) {
     MDCBottomNavigationItemView *itemView = self.itemViews[i];
     itemView.badgeHorizontalOffset = itemBadgeHorizontalOffset;
-  }
-}
-
-// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
-- (void)setItemBadgeBackgroundColor:(nullable UIColor *)itemBadgeBackgroundColor {
-  _itemBadgeBackgroundColor = itemBadgeBackgroundColor;
-
-  for (NSUInteger i = 0; i < self.items.count; ++i) {
-    UITabBarItem *item = self.items[i];
-    if (item.badgeColor) {
-      continue;
-    }
-    MDCBottomNavigationItemView *itemView = self.itemViews[i];
-    itemView.badgeColor = itemBadgeBackgroundColor;
-  }
-}
-
-// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
-- (void)setItemBadgeTextColor:(nullable UIColor *)itemBadgeTextColor {
-  _itemBadgeTextColor = itemBadgeTextColor;
-
-  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
-    itemView.badgeTextColor = itemBadgeTextColor;
-  }
-}
-
-// TODO(featherless): Delete once everyone has migrated to itemBadgeAppearance.
-- (void)setItemBadgeTextFont:(nullable UIFont *)itemBadgeTextFont {
-  _itemBadgeTextFont = itemBadgeTextFont;
-
-  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
-    itemView.badgeFont = itemBadgeTextFont;
   }
 }
 
@@ -1125,6 +1338,13 @@ static BOOL gEnablePerformantShadow = NO;
     itemView.titleBelowIcon = ![self itemViewsShouldAlwaysHideTitles];
   } else {
     itemView.titleBelowIcon = self.isTitleBelowIcon;
+  }
+}
+
+- (void)setEnableSquareImages:(BOOL)enableSquareImages {
+  _enableSquareImages = enableSquareImages;
+  for (MDCBottomNavigationItemView *itemView in self.itemViews) {
+    itemView.enableSquareImages = enableSquareImages;
   }
 }
 

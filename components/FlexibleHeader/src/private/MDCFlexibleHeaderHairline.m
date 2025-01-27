@@ -20,6 +20,7 @@ __attribute__((objc_subclassing_restricted)) @interface MDCFlexibleHeaderHairlin
 @property(nonatomic, weak) id<MDCFlexibleHeaderHairlineViewDelegate> delegate;
 @end
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCFlexibleHeaderHairlineViewDelegate <NSObject>
 @required
 
@@ -91,7 +92,13 @@ __attribute__((objc_subclassing_restricted)) @interface MDCFlexibleHeaderHairlin
 
 - (CGRect)frame {
   CGRect bounds = self.containerView.bounds;
+#if defined(TARGET_OS_VISION) && TARGET_OS_VISION
+  // For code review, use the review queue listed in go/material-visionos-review.
+  UITraitCollection *current = [UITraitCollection currentTraitCollection];
+  CGFloat containerScreenScale = current ? [current displayScale] : 1.0;
+#else
   CGFloat containerScreenScale = self.containerView.window.screen.scale;
+#endif
   BOOL hasValidScreenScale = containerScreenScale > 0;
   CGFloat hairlineHeight = hasValidScreenScale ? ((CGFloat)1.0 / containerScreenScale) : 1;
   return CGRectMake(0, CGRectGetHeight(bounds) - hairlineHeight, CGRectGetWidth(bounds),

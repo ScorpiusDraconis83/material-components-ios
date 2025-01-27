@@ -21,6 +21,7 @@ API_DEPRECATED_BEGIN("🕘 Schedule time to migrate. "
 
 @class MDCCollectionInfoBarView;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCCollectionInfoBarViewDelegate <NSObject>
 @required
 /**

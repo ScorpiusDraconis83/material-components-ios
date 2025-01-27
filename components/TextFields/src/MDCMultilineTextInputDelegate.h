@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
  MDCMultilineTextInputDelegate has a method common to the UITextFieldDelegate protocol but not
  found in UITextViewDelegate.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCMultilineTextInputDelegate <NSObject>
 
 @optional

@@ -15,10 +15,10 @@
 #import "MDCChipField.h"
 #import <UIKit/UIKit.h>
 
-#import "MDCChipView.h"
-#import <MDFInternationalization/MDFInternationalization.h>
 #import "MDCChipFieldDelegate.h"
+#import "MDCChipView.h"
 #import "MDCChipViewDeleteButton.h"
+#import <MDFInternationalization/MDFRTL.h>
 
 NSString *const MDCEmptyTextString = @"";
 NSString *const MDCChipDelimiterSpace = @" ";
@@ -36,6 +36,7 @@ static const CGFloat MDCChipFieldHorizontalInset = 15;
 static const CGFloat MDCChipFieldVerticalInset = 8;
 static const CGFloat MDCChipFieldHorizontalMargin = 8;
 static const CGFloat MDCChipFieldVerticalMargin = 8;
+static const UIEdgeInsets MDCChipFieldTextFieldTextInsetsDefault = {16, 4, 16, 0};
 static const UIKeyboardType MDCChipFieldDefaultKeyboardType = UIKeyboardTypeEmailAddress;
 
 const CGFloat MDCChipFieldDefaultMinTextFieldWidth = 44;
@@ -43,6 +44,7 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
     MDCChipFieldVerticalInset, MDCChipFieldHorizontalInset, MDCChipFieldVerticalInset,
     MDCChipFieldHorizontalInset};
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCChipFieldTextFieldDelegate <NSObject>
 
 - (void)textFieldDidDelete:(UITextField *)textField;
@@ -53,20 +55,20 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
 
 @property(nonatomic, weak) id<MDCChipFieldTextFieldDelegate> deletionDelegate;
 
+@property(nonatomic) UIEdgeInsets textFieldTextInsets;
+
 @end
 
 @implementation MDCChipFieldTextField
-
-const UIEdgeInsets MDCChipFieldTextFieldRTLEdgeInsets = {16, 0, 16, 4};
-
-const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
 
 - (BOOL)isRTL {
   return self.effectiveUserInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
 }
 
 - (UIEdgeInsets)textEdgeInsets {
-  return [self isRTL] ? MDCChipFieldTextFieldRTLEdgeInsets : MDCChipFieldTextFieldLTREdgeInsets;
+  return [self isRTL] ? UIEdgeInsetsMake(_textFieldTextInsets.top, _textFieldTextInsets.right,
+                                         _textFieldTextInsets.bottom, _textFieldTextInsets.left)
+                      : _textFieldTextInsets;
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds {
@@ -149,6 +151,7 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
     chipFieldTextField.autocorrectionType = UITextAutocorrectionTypeNo;
     chipFieldTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     chipFieldTextField.keyboardType = MDCChipFieldDefaultKeyboardType;
+    chipFieldTextField.textFieldTextInsets = MDCChipFieldTextFieldTextInsetsDefault;
     // Listen for notifications posted when the text field is the first responder.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(textFieldDidChange)
@@ -182,6 +185,8 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   _contentEdgeInsets = MDCChipFieldDefaultContentEdgeInsets;
   _showPlaceholderWithChips = YES;
   _chipHeight = 32;
+  _textFieldLeadingPaddingWhenChipIsAdded = 0;
+  _textFieldTextInsets = MDCChipFieldTextFieldTextInsetsDefault;
 
   [self configureLocalizedAccessibilityActionName];
 }
@@ -220,6 +225,28 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
 
   if (heightChanged && [self.delegate respondsToSelector:@selector(chipFieldHeightDidChange:)]) {
     [self.delegate chipFieldHeightDidChange:self];
+  }
+}
+
+- (CGFloat)getChipHeight {
+  if (self.adjustChipHeightForTextSize) {
+    CGFloat chipDynamicHeight = self.textField.font.lineHeight;
+    return _chipHeight > chipDynamicHeight ? _chipHeight : chipDynamicHeight;
+  } else {
+    return _chipHeight;
+  }
+}
+
+- (CGFloat)getChipYCoordinateForHeight:(CGFloat)chipFullHeight row:(NSUInteger)row {
+  if (self.adjustChipHeightForTextSize) {
+    // Smaller chip heights need more vertical padding to accommodate a touch target size of at
+    // least 44. At larger text sizes, the padding can shrink to reduce wasted space.
+    return chipFullHeight >= 36
+               ? self.contentEdgeInsets.top + (row * (chipFullHeight + MDCChipFieldVerticalMargin))
+               : self.contentEdgeInsets.top +
+                     (row * (chipFullHeight + MDCChipFieldVerticalMargin + 4));
+  } else {
+    return self.contentEdgeInsets.top + (row * (_chipHeight + MDCChipFieldVerticalMargin));
   }
 }
 
@@ -289,6 +316,13 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   [self updateTextFieldPlaceholderText];
 }
 
+- (void)setTextFieldTextInsets:(UIEdgeInsets)textFieldTextInsets {
+  _textFieldTextInsets = textFieldTextInsets;
+  if ([_textField isKindOfClass:[MDCChipFieldTextField class]]) {
+    ((MDCChipFieldTextField *)self.textField).textFieldTextInsets = _textFieldTextInsets;
+  }
+}
+
 - (CGSize)sizeThatFits:(CGSize)size {
   NSArray *chipFrames = [self chipFramesForSize:size];
   CGRect lastChipFrame = [chipFrames.lastObject CGRectValue];
@@ -298,7 +332,7 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   // To properly apply bottom inset: Calculate what would be the height if there were a chip
   // instead of the text field. Then add the bottom inset.
   CGFloat height = CGRectGetMaxY(textFieldFrame) + self.contentEdgeInsets.bottom +
-                   (self.chipHeight - textFieldFrame.size.height) / 2;
+                   ([self getChipHeight] - textFieldFrame.size.height) / 2;
   CGFloat width = MAX(size.width, self.minTextFieldWidth);
 
   return CGSizeMake(width, height);
@@ -404,6 +438,16 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   }
 }
 
+#pragma mark - Chip selection
+
+- (void)didTapChipWithGestureRecognizer:(UITapGestureRecognizer *)gesture {
+  if (![gesture.view isKindOfClass:[MDCChipView class]]) {
+    return;
+  }
+  MDCChipView *chipView = (MDCChipView *)gesture.view;
+  chipView.selected = !chipView.selected;
+}
+
 - (void)selectChip:(MDCChipView *)chip {
   [self deselectAllChipsExceptChip:chip];
   chip.selected = YES;
@@ -454,6 +498,12 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
       stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
   if (strippedTitle.length > 0) {
     MDCChipView *chip = [[MDCChipView alloc] init];
+
+    UITapGestureRecognizer *tapGesture =
+        [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                action:@selector(didTapChipWithGestureRecognizer:)];
+    [chip addGestureRecognizer:tapGesture];
+
     chip.titleLabel.text = strippedTitle;
     BOOL shouldAddChip = YES;
     if ([self.delegate respondsToSelector:@selector(chipField:shouldAddChip:)]) {
@@ -584,7 +634,8 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   if (!CGRectIsEmpty(lastChipFrame)) {
     BOOL isTextTooWide = [self textInputDesiredWidth] >= [self availableWidthForTextInput];
     BOOL isTextFieldOnSameLineAsChips =
-        CGRectGetMidY(self.textField.frame) == CGRectGetMidY(lastChipFrame);
+        CGRectGetMidY(self.textField.frame) >= CGRectGetMinY(lastChipFrame) &&
+        CGRectGetMidY(self.textField.frame) < CGRectGetMaxY(lastChipFrame);
     if (isTextTooWide && isTextFieldOnSameLineAsChips) {
       // The text is on the same line as the chips and doesn't fit
       // Trigger layout to move the text field down to the next line
@@ -660,7 +711,7 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   CGFloat currentOriginX = self.contentEdgeInsets.left;
 
   for (MDCChipView *chip in self.chips) {
-    CGSize chipSize = [chip sizeThatFits:CGSizeMake(maxWidth, self.chipHeight)];
+    CGSize chipSize = [chip sizeThatFits:CGSizeMake(maxWidth, [self getChipHeight])];
     chipSize.width = MIN(chipSize.width, maxWidth);
 
     CGFloat availableWidth = chipFieldMaxX - currentOriginX;
@@ -671,8 +722,7 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
       row++;
       currentOriginX = self.contentEdgeInsets.left;
     }
-    CGFloat currentOriginY =
-        self.contentEdgeInsets.top + (row * (self.chipHeight + MDCChipFieldVerticalMargin));
+    CGFloat currentOriginY = [self getChipYCoordinateForHeight:chipSize.height row:(row)];
     CGRect chipFrame = CGRectMake(currentOriginX, currentOriginY, chipSize.width, chipSize.height);
     [chipFrames addObject:[NSValue valueWithCGRect:chipFrame]];
     currentOriginX = CGRectGetMaxX(chipFrame) + MDCChipFieldHorizontalMargin;
@@ -684,7 +734,7 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
                               chipFieldSize:(CGSize)chipFieldSize {
   CGFloat availableWidth = [self availableWidthForTextInput];
   CGFloat textFieldHeight = [self.textField sizeThatFits:chipFieldSize].height;
-  CGFloat originY = lastChipFrame.origin.y + (self.chipHeight - textFieldHeight) / 2;
+  CGFloat originY = lastChipFrame.origin.y + ([self getChipHeight] - textFieldHeight) / 2;
 
   // If no chip exists, make the text field the full width, adjusted for insets.
   if (CGRectIsEmpty(lastChipFrame)) {
@@ -697,13 +747,14 @@ const UIEdgeInsets MDCChipFieldTextFieldLTREdgeInsets = {16, 4, 16, 0};
   CGFloat desiredTextWidth = [self textInputDesiredWidth];
   if (availableWidth < desiredTextWidth) {
     // The text field doesn't fit on the line with the last chip.
-    originY += self.chipHeight + MDCChipFieldVerticalMargin;
+    originY += [self getChipHeight] + MDCChipFieldVerticalMargin;
     originX = self.contentEdgeInsets.left;
     textFieldWidth =
         chipFieldSize.width - self.contentEdgeInsets.left - self.contentEdgeInsets.right;
   } else {
     // The text field fits on the line with chips
-    originX += CGRectGetMaxX(lastChipFrame) + MDCChipFieldHorizontalMargin;
+    originX += CGRectGetMaxX(lastChipFrame) + MDCChipFieldHorizontalMargin +
+               _textFieldLeadingPaddingWhenChipIsAdded;
     textFieldWidth = availableWidth;
   }
 

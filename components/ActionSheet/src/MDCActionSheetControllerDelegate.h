@@ -34,6 +34,7 @@ API_DEPRECATED("🕘 Schedule time to migrate. "
                "confirmations. "
                "This is go/material-ios-migrations#not-scriptable 🕘",
                ios(12, 12))
+NS_SWIFT_UI_ACTOR
 @protocol MDCActionSheetControllerDelegate <NSObject>
 @optional
 

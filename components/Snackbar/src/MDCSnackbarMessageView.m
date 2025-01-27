@@ -35,6 +35,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface AccessibilityAffordanceButton : UIButton
+@end
+
+@implementation AccessibilityAffordanceButton
+
+- (BOOL)accessibilityActivate {
+  [self sendActionsForControlEvents:UIControlEventTouchUpInside];
+  return YES;
+}
+
+@end
+
 NSString *const MDCSnackbarMessageTitleAutomationIdentifier =
     @"MDCSnackbarMessageTitleAutomationIdentifier";
 
@@ -373,7 +385,7 @@ static const CGFloat kMinimumAccessibiltyFontSize = 21;
     NSString *dismissalAccessibilityHint = NSLocalizedStringFromTableInBundle(
         dismissalAccessibilityHintKey, kMaterialSnackbarStringsTableName, [[self class] bundle],
         @"Dismissal accessibility hint for Snackbar");
-    _dismissalAccessibilityAffordance = [[UIButton alloc] init];
+    _dismissalAccessibilityAffordance = [[AccessibilityAffordanceButton alloc] init];
     _dismissalAccessibilityAffordance.isAccessibilityElement = YES;
     _dismissalAccessibilityAffordance.accessibilityLabel = dismissalAccessibilityLabel;
     _dismissalAccessibilityAffordance.accessibilityHint = dismissalAccessibilityHint;
@@ -628,13 +640,15 @@ static const CGFloat kMinimumAccessibiltyFontSize = 21;
 }
 
 - (CGFloat)minimumWidth {
-  return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? kMinimumViewWidth_iPad
-                                                              : kMinimumViewWidth_iPhone;
+  return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad
+             ? kMinimumViewWidth_iPad
+             : kMinimumViewWidth_iPhone;
 }
 
 - (CGFloat)maximumWidth {
-  return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? kMaximumViewWidth_iPad
-                                                              : kMaximumViewWidth_iPhone;
+  return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad
+             ? kMaximumViewWidth_iPad
+             : kMaximumViewWidth_iPhone;
 }
 
 #pragma mark - Styling the view
@@ -1078,6 +1092,7 @@ static const CGFloat kMinimumAccessibiltyFontSize = 21;
   [self updatePreferredMaxLayoutWidth];
   [self updateButtonWidthConstraint];
 
+#if !TARGET_OS_VISION
   if (!self.dismissalAccessibilityAffordance.hidden) {
     // Update frame of the dismissal touch affordance.
     CGRect globalFrame = [self convertRect:self.bounds toView:nil];
@@ -1086,6 +1101,7 @@ static const CGFloat kMinimumAccessibiltyFontSize = 21;
     CGRect localDismissalAreaFrame = [self convertRect:globalDismissalAreaFrame fromView:nil];
     self.dismissalAccessibilityAffordance.frame = localDismissalAreaFrame;
   }
+#endif  // TODO: b/359236816 - fix visionOS-specific compatibility workarounds.
 
   BOOL isMultilineText = [self numberOfLines] > 1;
   if (_isMultilineText != isMultilineText) {

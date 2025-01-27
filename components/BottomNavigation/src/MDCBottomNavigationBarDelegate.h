@@ -22,6 +22,7 @@
  Delegate protocol for MDCBottomNavigationBar. Clients may implement this protocol to receive
  notifications of selection changes by user action in the bottom navigation bar.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomNavigationBarDelegate <UINavigationBarDelegate>
 
 @optional

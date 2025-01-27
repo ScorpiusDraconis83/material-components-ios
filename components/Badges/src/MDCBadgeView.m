@@ -20,6 +20,8 @@
 // TODO(featherless): Remove the dependency on MDCPalette.
 #import "MDCPalettes.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static const CGFloat kBadgeFontSize = 8;
 static const CGFloat kBadgeYPadding = 2;
 static const CGFloat kMinDiameter = 9;
@@ -47,6 +49,8 @@ static const CGFloat kMinDiameter = 9;
 @implementation MDCBadgeView {
   UIColor *_Nullable _borderColor;
   UILabel *_Nonnull _label;
+  CGFloat _dotBadgeInnerRadius;
+  BOOL _dotBadgeEnabled;
 }
 
 @synthesize appearance = _appearance;
@@ -63,6 +67,7 @@ static const CGFloat kMinDiameter = 9;
     _label = [[UILabel alloc] initWithFrame:self.bounds];
     _label.textAlignment = NSTextAlignmentCenter;
     _label.isAccessibilityElement = NO;
+    _label.hidden = _appearance.dotBadgeEnabled;
     [self addSubview:_label];
   }
   return self;
@@ -80,6 +85,18 @@ static const CGFloat kMinDiameter = 9;
 - (void)layoutSubviews {
   [super layoutSubviews];
 
+  if (_appearance.dotBadgeEnabled) {
+    [self layoutDotBadge];
+  } else {
+    [self layoutTextBadge];
+  }
+}
+
+- (void)layoutDotBadge {
+  self.layer.cornerRadius = CGRectGetHeight(self.bounds) / 2;
+}
+
+- (void)layoutTextBadge {
   CGFloat badgeRadius = CGRectGetHeight(self.bounds) / 2;
   CGRect availableContentRect = CGRectStandardize(
       CGRectInset(self.bounds, [self badgeXPaddingForRadius:badgeRadius], kBadgeYPadding));
@@ -91,6 +108,19 @@ static const CGFloat kMinDiameter = 9;
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
+  if (_appearance.dotBadgeEnabled) {
+    return [self sizeThatFitsDotBadge:size];
+  } else {
+    return [self sizeThatFitsTextBadge:size];
+  }
+}
+
+- (CGSize)sizeThatFitsDotBadge:(CGSize)size {
+  CGFloat squareDimension = (_dotBadgeInnerRadius + self.layer.borderWidth) * 2;
+  return CGSizeMake(squareDimension, squareDimension);
+}
+
+- (CGSize)sizeThatFitsTextBadge:(CGSize)size {
   if (_label.text == nil) {
     return CGSizeZero;
   }
@@ -128,8 +158,10 @@ static const CGFloat kMinDiameter = 9;
 - (void)traitCollectionDidChange:(nullable UITraitCollection *)previousTraitCollection {
   [super traitCollectionDidChange:previousTraitCollection];
 
-  [self updateFont];
-  [self updateBorderColor];
+  if (!_appearance.dotBadgeEnabled) {
+    [self updateFont];
+    [self updateBorderColor];
+  }
 }
 
 - (void)updateFont {
@@ -152,6 +184,18 @@ static const CGFloat kMinDiameter = 9;
   _label.textColor = _appearance.textColor;
   if (![_label.font isEqual:_appearance.font]) {
     [self updateFont];
+    intrinsicSizeAffected = !_appearance.dotBadgeEnabled;
+  }
+
+  // Layout
+  if (_dotBadgeInnerRadius != _appearance.dotBadgeInnerRadius) {
+    _dotBadgeInnerRadius = _appearance.dotBadgeInnerRadius;
+    intrinsicSizeAffected = intrinsicSizeAffected || _appearance.dotBadgeEnabled;
+  }
+
+  if (_dotBadgeEnabled != _appearance.dotBadgeEnabled) {
+    _dotBadgeEnabled = _appearance.dotBadgeEnabled;
+    _label.hidden = _appearance.dotBadgeEnabled;
     intrinsicSizeAffected = YES;
   }
 
@@ -203,3 +247,5 @@ static const CGFloat kMinDiameter = 9;
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -31,6 +31,7 @@
 #import "UIFont+MaterialTypography.h"
 #import "MDCMath.h"
 #import <MDFInternationalization/MDFInternationalization.h>  // IWYU pragma: keep
+#import <MDFInternationalization/MDFRTL.h>
 
 static const MDCFontTextStyle kTitleTextStyle = MDCFontTextStyleBody2;
 
@@ -183,11 +184,13 @@ static BOOL gEnablePerformantShadow = NO;
       UIColor *normal = MDCColorFromRGB(MDCChipBackgroundColor);
       UIColor *disabled = MDCColorLighten(normal, MDCChipDisabledLightenPercent);
       UIColor *selected = MDCColorDarken(normal, MDCChipSelectedDarkenPercent);
+      UIColor *selectedDisabled = MDCColorFromRGB(MDCChipBackgroundColor);
 
       _backgroundColors = [NSMutableDictionary dictionary];
       _backgroundColors[@(UIControlStateNormal)] = normal;
       _backgroundColors[@(UIControlStateDisabled)] = disabled;
       _backgroundColors[@(UIControlStateSelected)] = selected;
+      _backgroundColors[@(UIControlStateSelected & UIControlStateDisabled)] = selectedDisabled;
     }
     _borderColors = [NSMutableDictionary dictionary];
     _borderWidths = [NSMutableDictionary dictionary];
@@ -703,6 +706,7 @@ static BOOL gEnablePerformantShadow = NO;
 
   if (tintColor != nil) {
     self.imageView.tintColor = tintColor;
+    self.selectedImageView.tintColor = tintColor;
     self.accessoryView.tintColor = tintColor;
   }
 }

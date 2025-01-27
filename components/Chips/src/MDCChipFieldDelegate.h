@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCChipFieldDelegate <NSObject>
 
 @optional

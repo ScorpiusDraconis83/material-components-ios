@@ -45,6 +45,7 @@ __attribute__((objc_subclassing_restricted))
 @property(nonatomic, strong, nullable) UIImage *image;
 @property(nonatomic, strong, nullable) UIImage *selectedImage;
 @property(nonatomic, strong) UIImageView *iconImageView;
+@property(nonatomic, strong) UIView *iconContainerView;
 
 @property(nonatomic, strong, nullable) UIColor *selectedItemTintColor;
 @property(nonatomic, strong, nullable) UIColor *unselectedItemTintColor;
@@ -62,6 +63,11 @@ __attribute__((objc_subclassing_restricted))
 
 /** The flag to enable displaying titles vertical layout mode. */
 @property(nonatomic) BOOL displayTitleInVerticalLayout;
+
+/**
+ If true, the tab icon will be placed in a square container for layout.
+*/
+@property(nonatomic, assign) BOOL enableSquareImages;
 
 /**
  Returns a rect that is the union of all visible content views, inset by

@@ -17,31 +17,28 @@
 @class MDCAlertAction;
 @class MDCAlertController;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCAlertControllerDelegate <NSObject>
 
 @optional
 
 /**
- Informs the receiver that the alert controller will appear on the screen or the application is
- entering the foreground.
+ Informs the receiver that the alert controller will appear on the screen.
  */
 - (void)alertController:(nonnull MDCAlertController *)alertController willAppear:(BOOL)animated;
 
 /**
- Informs the receiver that the alert controller appeared on the screen or the application has
- entered the foreground.
+ Informs the receiver that the alert controller appeared on the screen.
  */
 - (void)alertController:(nonnull MDCAlertController *)alertController didAppear:(BOOL)animated;
 
 /**
- Informs the receiver that the alert controller will disappear from the screen or the application is
- entering the background.
+ Informs the receiver that the alert controller will disappear from the screen.
  */
 - (void)alertController:(nonnull MDCAlertController *)alertController willDisappear:(BOOL)animated;
 
 /**
- Informs the receiver that the alert controller disappeared from the screen or the application has
- entered the background.
+ Informs the receiver that the alert controller disappeared from the screen.
  */
 - (void)alertController:(nonnull MDCAlertController *)alertController didDisappear:(BOOL)animated;
 

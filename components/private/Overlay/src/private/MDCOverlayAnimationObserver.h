@@ -40,6 +40,7 @@
 /**
  Delegate protocol for @c MDCOverlayAnimationObserver.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCOverlayAnimationObserverDelegate <NSObject>
 
 /**

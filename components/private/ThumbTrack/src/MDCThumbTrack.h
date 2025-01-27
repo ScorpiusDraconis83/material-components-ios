@@ -352,6 +352,7 @@ typedef NS_ENUM(NSUInteger, MDCThumbDiscreteDotVisibility) {
 @end
 
 /** MDCThumbtrack delegate which allows setting custom behavior. */
+NS_SWIFT_UI_ACTOR
 @protocol MDCThumbTrackDelegate <NSObject>
 @optional
 

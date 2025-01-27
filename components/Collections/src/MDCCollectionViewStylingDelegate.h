@@ -27,6 +27,7 @@ API_DEPRECATED_BEGIN("🕘 Schedule time to migrate. "
 @class MDCRippleView;
 
 /** A delegate protocol which allows setting collection view cell styles. */
+NS_SWIFT_UI_ACTOR
 @protocol MDCCollectionViewStylingDelegate <NSObject>
 @optional
 

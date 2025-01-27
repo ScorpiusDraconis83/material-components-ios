@@ -38,6 +38,7 @@ typedef NS_ENUM(NSUInteger, MDCTabBarViewItemViewStyle) {
   MDCTabBarViewItemViewStyleTextAndImage = 2,
 };
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCTabBarViewItemViewDelegate <NSObject>
 
 /* Minimum item width*/

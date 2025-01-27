@@ -54,13 +54,13 @@ public final class M3CTextField: UIView, M3CTextInput {
   // This constant is based on the default font size for UITextField.
   private var defaultTextContainerFont = UIFont.systemFont(ofSize: 17)
 
-  private var backgroundColors: [UIControl.State: UIColor] = [:]
-  private var borderColors: [UIControl.State: UIColor] = [:]
-  private var inputColors: [UIControl.State: UIColor] = [:]
-  private var supportingLabelColors: [UIControl.State: UIColor] = [:]
-  private var titleLabelColors: [UIControl.State: UIColor] = [:]
-  private var trailingLabelColors: [UIControl.State: UIColor] = [:]
-  private var tintColors: [UIControl.State: UIColor] = [:]
+  var backgroundColors: [UIControl.State: UIColor] = [:]
+  var borderColors: [UIControl.State: UIColor] = [:]
+  var inputColors: [UIControl.State: UIColor] = [:]
+  var supportingLabelColors: [UIControl.State: UIColor] = [:]
+  var titleLabelColors: [UIControl.State: UIColor] = [:]
+  var trailingLabelColors: [UIControl.State: UIColor] = [:]
+  var tintColors: [UIControl.State: UIColor] = [:]
 
   @objc public var textContainer: UITextField
 
@@ -405,7 +405,7 @@ extension M3CTextField {
 // MARK: - UIControl.editingChanged
 @available(iOS 13.0, *)
 extension M3CTextField {
-  @objc private func textFieldEditingChanged(textField: UITextField) {
+  @objc func textFieldEditingChanged(textField: UITextField) {
     // `clearButton` should never be visible when there is no input text.
     if let clearButton, rightView == clearButton {
       let textCount = textField.text?.count ?? 0

@@ -27,6 +27,7 @@ API_DEPRECATED_BEGIN("🕘 Schedule time to migrate. "
   - Individual cells being swiped horizontally for dismissal.
   - Entire cell sections being swiped horizontally for dismissal.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCCollectionViewEditingDelegate <NSObject>
 
 @optional

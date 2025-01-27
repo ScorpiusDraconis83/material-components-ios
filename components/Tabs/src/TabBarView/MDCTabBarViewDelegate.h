@@ -22,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Methods for notification and control of selection events for @c MDCTabBarView.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCTabBarViewDelegate <NSObject>
 
 @optional

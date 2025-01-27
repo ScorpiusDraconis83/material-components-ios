@@ -19,6 +19,7 @@
 /**
  Methods for managing lifecycle events of an @c MDCBottomSheetTransitionController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCBottomSheetTransitionControllerDelegate <NSObject>
 @optional
 /**

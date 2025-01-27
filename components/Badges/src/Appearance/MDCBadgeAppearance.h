@@ -16,6 +16,8 @@
 
 #import "MDCMinimumOS.h"  // IWYU pragma: keep
 
+NS_ASSUME_NONNULL_BEGIN
+
 /** An object for customizing the appearance of a badge. */
 __attribute__((objc_subclassing_restricted))
 @interface MDCBadgeAppearance : NSObject<NSCopying>
@@ -39,6 +41,22 @@ __attribute__((objc_subclassing_restricted))
 @property(nonatomic, strong, nullable) UIFont *font;
 
 /**
+ The radius of the filled portion of the dot badge. Only used if `dotBadgeEnabled` is YES.
+
+ The width and height of the dot badge's frame will be equal to
+ (dotBadgeInnerRadius + borderWidth) * 2.
+ */
+@property(nonatomic) CGFloat dotBadgeInnerRadius;
+
+/**
+ Whether the badge should be a dot badge.
+
+ Dot badges do not display any text. Enabling this flag will cause the badge to ignore any text
+ set on the badge.
+ */
+@property(nonatomic) BOOL dotBadgeEnabled;
+
+/**
  The color of the border surrounding the badge.
 
  Use this property instead of self.layer.borderColor. This property allows the badge to support
@@ -55,3 +73,5 @@ __attribute__((objc_subclassing_restricted))
 @property(nonatomic) CGFloat borderWidth;
 
 @end
+
+NS_ASSUME_NONNULL_END

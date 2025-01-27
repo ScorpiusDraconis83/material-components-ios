@@ -21,7 +21,6 @@
 
 #import "MDCTextControlLabelBehavior.h"
 #import "MDCFilledTextArea.h"
-#import "MDCFilledTextArea+MaterialTheming.h"
 #import "MDCOutlinedTextArea.h"
 #import "MDCOutlinedTextArea+MaterialTheming.h"
 
@@ -46,7 +45,6 @@
   if (self.shouldAddDebugLeadingView) {
     [self addLeadingViewToTextArea:textArea];
   }
-  [textArea applyThemeWithScheme:self.containerScheme];
   return textArea;
 }
 
@@ -199,10 +197,7 @@
       enumerateObjectsUsingBlock:^(MDCBaseTextArea *textArea, NSUInteger idx, BOOL *stop) {
         BOOL isEven = idx % 2 == 0;
         if (self.isErrored) {
-          if ([textArea isKindOfClass:[MDCFilledTextArea class]]) {
-            MDCFilledTextArea *filledTextArea = (MDCFilledTextArea *)textArea;
-            [filledTextArea applyErrorThemeWithScheme:self.containerScheme];
-          } else if ([textArea isKindOfClass:[MDCOutlinedTextArea class]]) {
+          if ([textArea isKindOfClass:[MDCOutlinedTextArea class]]) {
             MDCOutlinedTextArea *outlinedTextArea = (MDCOutlinedTextArea *)textArea;
             [outlinedTextArea applyErrorThemeWithScheme:self.containerScheme];
           }
@@ -214,10 +209,7 @@
             textArea.leadingAssistiveLabel.text = @"This is an error.";
           }
         } else {
-          if ([textArea isKindOfClass:[MDCFilledTextArea class]]) {
-            MDCFilledTextArea *filledTextArea = (MDCFilledTextArea *)textArea;
-            [filledTextArea applyThemeWithScheme:self.containerScheme];
-          } else if ([textArea isKindOfClass:[MDCOutlinedTextArea class]]) {
+          if ([textArea isKindOfClass:[MDCOutlinedTextArea class]]) {
             MDCOutlinedTextArea *outlinedTextArea = (MDCOutlinedTextArea *)textArea;
             [outlinedTextArea applyThemeWithScheme:self.containerScheme];
           }

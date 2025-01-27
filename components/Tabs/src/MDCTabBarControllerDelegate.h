@@ -21,6 +21,7 @@ API_DEPRECATED_BEGIN("🤖👀 Use a branded MDCTabBarView instead. "
 
 @class MDCTabBarViewController;
 
+NS_SWIFT_UI_ACTOR
 @protocol MDCTabBarControllerDelegate <NSObject>
 @optional
 

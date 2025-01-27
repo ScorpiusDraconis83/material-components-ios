@@ -107,7 +107,11 @@
  Default value is 12.
  */
 @property(nonatomic, assign) CGFloat actionsVerticalMargin;
-
+/**
+ The vertical space between the action buttons when the buttons are vertically aligned, and if more
+ than one button is presented.
+ */
+@property(nonatomic, assign) BOOL adjustButtonVerticalMargin;
 /**
  The GM3 vertical space between the action buttons when the buttons are
  vertically aligned, and if more than one button is presented.

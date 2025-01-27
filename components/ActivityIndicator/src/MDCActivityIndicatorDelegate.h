@@ -21,6 +21,7 @@
 /**
  Delegate protocol for the MDCActivityIndicator.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCActivityIndicatorDelegate <NSObject>
 
 @optional

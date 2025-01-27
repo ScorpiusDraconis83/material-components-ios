@@ -95,7 +95,10 @@ typedef NS_OPTIONS(NSUInteger, MDCChipFieldDelimiter) {
  Default is YES.
  */
 @property(nonatomic, assign) BOOL showPlaceholderWithChips;
-
+/**
+ If true, the chip will increase its height to accommodate accessibility sizes of text.
+*/
+@property(nonatomic, assign) BOOL adjustChipHeightForTextSize;
 /**
  Enabling this property allows chips to be deleted by tapping on them.
 
@@ -134,6 +137,19 @@ typedef NS_OPTIONS(NSUInteger, MDCChipFieldDelimiter) {
  Default is |kMDCChipFieldDefaultContentEdgeInsets|.
  */
 @property(nonatomic, assign) UIEdgeInsets contentEdgeInsets;
+
+/**
+ * The padding before the leading edge of the text field when there are chips. This is not applied
+ * when there are no chips.
+ * Default is 0.
+ */
+@property(nonatomic, assign) CGFloat textFieldLeadingPaddingWhenChipIsAdded;
+
+/**
+ * The insets of the text rect. Flipping for RTL is handled internally.
+ * Default is 4.
+ */
+@property(nonatomic, assign) UIEdgeInsets textFieldTextInsets;
 
 /**
  The image used in the MDCChipViewDeleteButton.

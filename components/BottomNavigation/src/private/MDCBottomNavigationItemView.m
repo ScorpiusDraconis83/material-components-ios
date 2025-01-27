@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import <CoreGraphics/CoreGraphics.h>
+#import <UIKit/UIKit.h>
 
 #import "MDCBottomNavigationItemView.h"
 
@@ -28,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 // CGFloat doesn't lose precision.
 static const CGFloat kMaxSizeDimension = 1000000;
 static const CGFloat MDCBottomNavigationItemViewRippleOpacity = (CGFloat)0.150;
-static const CGFloat MDCBottomNavigationItemViewTitleFontSize = 12;
 
 // Selection indicator animation details.
 static const CGFloat kSelectionIndicatorTransformAnimationDuration = 0.17;
@@ -115,7 +115,7 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
     _label = [[UILabel alloc] initWithFrame:CGRectZero];
     _label.text = _title;
-    _label.font = [UIFont systemFontOfSize:MDCBottomNavigationItemViewTitleFontSize];
+    _label.font = [UIFont systemFontOfSize:12];
     _label.textAlignment = NSTextAlignmentCenter;
     _label.textColor = _selectedItemTitleColor;
     _label.lineBreakMode = NSLineBreakByTruncatingTail;
@@ -128,12 +128,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
     _badge = [[MDCBadgeView alloc] initWithFrame:CGRectZero];
     _badge.isAccessibilityElement = NO;
-
     [_button addSubview:_iconImageView];
     [_button addSubview:_label];
     [_button addSubview:_badge];
     _badge.hidden = YES;
-
+    _iconContainerView = [[UIView alloc] initWithFrame:CGRectZero];
     _rippleTouchController = [[MDCRippleTouchController alloc] initWithView:self];
     _rippleTouchController.rippleView.rippleStyle = MDCRippleStyleUnbounded;
   }
@@ -170,7 +169,12 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   }
 
   CGSize maxSize = CGSizeMake(kMaxSizeDimension, kMaxSizeDimension);
-  CGSize iconSize = [self.iconImageView sizeThatFits:maxSize];
+  CGSize iconSize;
+  if (_enableSquareImages) {
+    iconSize = CGSizeMake(24, 24);
+  } else {
+    iconSize = [self.iconImageView sizeThatFits:maxSize];
+  }
   CGRect iconFrame = CGRectMake(0, 0, iconSize.width, iconSize.height);
   CGSize badgeSize = [_badge sizeThatFits:maxSize];
   CGPoint badgeCenter = [self badgeCenterFromIconFrame:iconFrame isRTL:NO];
@@ -194,7 +198,12 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   }
 
   CGSize maxSize = CGSizeMake(kMaxSizeDimension, kMaxSizeDimension);
-  CGSize iconSize = [self.iconImageView sizeThatFits:maxSize];
+  CGSize iconSize;
+  if (_enableSquareImages) {
+    iconSize = CGSizeMake(24, 24);
+  } else {
+    iconSize = [self.iconImageView sizeThatFits:maxSize];
+  }
   CGRect iconFrame = CGRectMake(0, 0, iconSize.width, iconSize.height);
   CGSize badgeSize = [_badge sizeThatFits:maxSize];
   CGPoint badgeCenter = [self badgeCenterFromIconFrame:iconFrame isRTL:NO];
@@ -234,7 +243,12 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
   // Determine the intrinsic size of the label, icon, and combined content
   CGRect contentBoundingRect = CGRectStandardize(contentBounds);
-  CGSize iconImageViewSize = [self.iconImageView sizeThatFits:contentBoundingRect.size];
+  CGSize iconImageViewSize;
+  if (_enableSquareImages) {
+    iconImageViewSize = CGSizeMake(24, 24);
+  } else {
+    iconImageViewSize = [self.iconImageView sizeThatFits:contentBoundingRect.size];
+  }
   CGSize labelSize = [self.label sizeThatFits:contentBoundingRect.size];
   CGFloat iconHeight = iconImageViewSize.height;
   CGFloat labelHeight = labelSize.height;
@@ -245,12 +259,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
   // Determine the position of the label and icon
   CGFloat centerX = CGRectGetMidX(contentBoundingRect);
-  CGFloat iconImageViewCenterY =
-      MAX(floor(CGRectGetMidY(contentBoundingRect) - totalContentHeight / 2 +
-                   iconHeight / 2),  // Content centered
-          floor(CGRectGetMinY(contentBoundingRect) +
-                   iconHeight / 2)  // Pinned to top of bounding rect.
-      );
+  CGFloat iconImageViewCenterY = MAX(
+      floor(CGRectGetMidY(contentBoundingRect) - totalContentHeight / 2 +
+            iconHeight / 2),                                      // Content centered
+      floor(CGRectGetMinY(contentBoundingRect) + iconHeight / 2)  // Pinned to top of bounding rect.
+  );
   CGPoint iconImageViewCenter = CGPointMake(centerX, iconImageViewCenterY);
   // Ignore the horizontal titlePositionAdjustment in a vertical layout to match UITabBar behavior.
   CGFloat centerY;
@@ -290,7 +303,12 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   }
   // Determine the intrinsic size of the label and icon
   CGRect contentBoundingRect = CGRectStandardize(contentBounds);
-  CGSize iconImageViewSize = [self.iconImageView sizeThatFits:contentBoundingRect.size];
+  CGSize iconImageViewSize;
+  if (_enableSquareImages) {
+    iconImageViewSize = CGSizeMake(24, 24);
+  } else {
+    iconImageViewSize = [self.iconImageView sizeThatFits:contentBoundingRect.size];
+  }
   CGSize maxLabelSize = CGSizeMake(
       contentBoundingRect.size.width - self.contentHorizontalMargin - iconImageViewSize.width,
       contentBoundingRect.size.height);
@@ -373,13 +391,21 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
     if (animated) {
       [UIView animateWithDuration:kMDCBottomNavigationItemViewSelectionAnimationDuration
                        animations:^(void) {
-                         self.iconImageView.center = iconImageViewCenter;
+                         if (_enableSquareImages) {
+                           self.iconContainerView.center = iconImageViewCenter;
+                         } else {
+                           self.iconImageView.center = iconImageViewCenter;
+                         }
                          _badge.center =
                              [self badgeCenterFromIconFrame:CGRectStandardize(iconImageViewFrame)
                                                       isRTL:isRTL];
                        }];
     } else {
-      self.iconImageView.center = iconImageViewCenter;
+      if (_enableSquareImages) {
+        self.iconContainerView.center = iconImageViewCenter;
+      } else {
+        self.iconImageView.center = iconImageViewCenter;
+      }
       _badge.center = [self badgeCenterFromIconFrame:CGRectStandardize(iconImageViewFrame)
                                                isRTL:isRTL];
     }
@@ -390,7 +416,12 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
     } else {
       self.label.textAlignment = NSTextAlignmentRight;
     }
-    self.iconImageView.center = iconImageViewCenter;
+    if (_enableSquareImages) {
+      self.iconContainerView.center = iconImageViewCenter;
+    } else {
+      self.iconImageView.center = iconImageViewCenter;
+    }
+    self.iconContainerView.center = iconImageViewCenter;
     _badge.center = [self badgeCenterFromIconFrame:CGRectStandardize(iconImageViewFrame)
                                              isRTL:isRTL];
   }
@@ -621,9 +652,15 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
 - (void)setImage:(nullable UIImage *)image {
   _image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-
   // _image updates unselected state
   // _image updates selected state IF there is no selectedImage
+  if (image == nil) {
+    self.iconContainerView.frame = CGRectZero;
+    return;
+  }
+  if (_enableSquareImages) {
+    [self setupIconContainerView];
+  }
   if (!self.selected || (self.selected && !self.selectedImage)) {
     self.iconImageView.image = _image;
     self.iconImageView.tintColor =
@@ -737,7 +774,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
     _selectionIndicator.backgroundColor = _selectionIndicatorColor;
     _selectionIndicator.hidden = !_selected;
     [self commitSelectionIndicatorState];
-    [self.button insertSubview:_selectionIndicator belowSubview:_iconImageView];
+    if (_enableSquareImages) {
+      [self.button insertSubview:_selectionIndicator belowSubview:_iconContainerView];
+    } else {
+      [self.button insertSubview:_selectionIndicator belowSubview:_iconImageView];
+    }
   } else {
     [_selectionIndicator removeFromSuperview];
     _selectionIndicator = nil;
@@ -948,8 +989,14 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   if (isRTL) {
     badgeX = iconX + floor([self iconSize].width * 0.5) - floor([self badgeSize].width) -
              _badgeHorizontalOffset;
+    if (_badge.appearance.dotBadgeEnabled) {
+      badgeX -= 5;
+    }
   } else {
     badgeX = iconX + floor([self iconSize].width * 0.5) + _badgeHorizontalOffset;
+    if (_badge.appearance.dotBadgeEnabled) {
+      badgeX += 5;
+    }
   }
 
   CGFloat badgeY = CGRectGetMinY(indicatorFrame) + kBadgeVerticalOffset;
@@ -967,16 +1014,27 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   CGPoint midPoint = [self midPoint];
   CGFloat indicatorMidX = CGRectGetMidX(_selectionIndicator.frame);
 
-  CGFloat iconX = indicatorMidX - CGRectGetMidX(_iconImageView.bounds);
-  CGFloat iconY = midPoint.y + (_selectionIndicatorSize.height * 0.5) -
-                  CGRectGetMidY(_iconImageView.bounds) + kIconVerticalOffset;
-
+  CGFloat iconX;
+  CGFloat iconY;
+  if (_enableSquareImages) {
+    iconX = indicatorMidX - CGRectGetMidX(_iconContainerView.bounds);
+    iconY = midPoint.y + (_selectionIndicatorSize.height * 0.5) -
+            CGRectGetMidY(_iconContainerView.bounds) + kIconVerticalOffset;
+  } else {
+    iconX = indicatorMidX - CGRectGetMidX(_iconImageView.bounds);
+    iconY = midPoint.y + (_selectionIndicatorSize.height * 0.5) -
+            CGRectGetMidY(_iconImageView.bounds) + kIconVerticalOffset;
+  }
   return CGPointMake(iconX, iconY);
 }
 
 - (CGSize)iconSize {
-  CGSize maxSize = CGSizeMake(kMaxSizeDimension, kMaxSizeDimension);
-  return [_iconImageView sizeThatFits:maxSize];
+  if (_enableSquareImages) {
+    return _iconContainerView.frame.size;
+  } else {
+    CGSize maxSize = CGSizeMake(kMaxSizeDimension, kMaxSizeDimension);
+    return [_iconImageView sizeThatFits:maxSize];
+  }
 }
 
 #pragma mark - Anchored Label
@@ -1039,7 +1097,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
 - (CGFloat)labelYForHorizontalLayout {
   CGPoint midPoint = [self midPoint];
-  return midPoint.y + CGRectGetMidY(_iconImageView.bounds);
+  if (_enableSquareImages) {
+    return midPoint.y + CGRectGetMidY(_iconContainerView.bounds);
+  } else {
+    return midPoint.y + CGRectGetMidY(_iconImageView.bounds);
+  }
 }
 
 #pragma mark - Branched anchored layout methods
@@ -1087,6 +1149,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   CGFloat badgeY = badgePosition.y;
   CGSize badgeSize = [self badgeSize];
   CGRect badgeFrame = CGRectIntegral(CGRectMake(badgeX, badgeY, badgeSize.width, badgeSize.height));
+  if (_badge.appearance.dotBadgeEnabled) {
+    CGFloat badgeDiameter =
+        (_badge.appearance.dotBadgeInnerRadius + _badge.appearance.borderWidth) * 2;
+    badgeFrame = CGRectMake(badgeX, badgeY, badgeDiameter, badgeDiameter);
+  }
   _badge.frame = badgeFrame;
 
   CGPoint iconPosition = [self iconPosition];
@@ -1094,7 +1161,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   CGFloat iconY = iconPosition.y;
   CGSize iconSize = [self iconSize];
   CGRect iconFrame = (CGRectMake(iconX, iconY, iconSize.width, iconSize.height));
-  _iconImageView.frame = iconFrame;
+  if (_enableSquareImages) {
+    _iconContainerView.frame = iconFrame;
+  } else {
+    _iconImageView.frame = iconFrame;
+  }
 
   CGSize labelSize = [self labelSize];
   CGRect adjustedLabelBounds = CGRectMake(0, 0, labelSize.width, labelSize.height);
@@ -1116,6 +1187,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   CGFloat badgeY = badgePosition.y;
   CGSize badgeSize = [self badgeSize];
   CGRect badgeFrame = CGRectIntegral(CGRectMake(badgeX, badgeY, badgeSize.width, badgeSize.height));
+  if (_badge.appearance.dotBadgeEnabled) {
+    CGFloat badgeDiameter =
+        (_badge.appearance.dotBadgeInnerRadius + _badge.appearance.borderWidth) * 2;
+    badgeFrame = CGRectMake(badgeX, badgeY, badgeDiameter, badgeDiameter);
+  }
   _badge.frame = badgeFrame;
 
   CGPoint iconPosition = [self iconPosition];
@@ -1123,8 +1199,11 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
   CGFloat iconY = iconPosition.y;
   CGSize iconSize = [self iconSize];
   CGRect iconFrame = CGRectIntegral(CGRectMake(iconX, iconY, iconSize.width, iconSize.height));
-  _iconImageView.frame = iconFrame;
-
+  if (_enableSquareImages) {
+    _iconContainerView.frame = iconFrame;
+  } else {
+    _iconImageView.frame = iconFrame;
+  }
   CGFloat labelX = [self labelXForHorizontalLayoutWithRTLState:isRTL];
   CGFloat labelY = [self labelYForHorizontalLayout];
   if (self.enableVerticalLayout) {
@@ -1172,6 +1251,45 @@ UIKIT_EXTERN float UIAnimationDragCoefficient(void);  // UIKit private drag coef
 
   return (traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact ||
           _titleVisibility == MDCBottomNavigationBarTitleVisibilityNever);
+}
+
+- (void)setEnableSquareImages:(BOOL)enableSquareImages {
+  if (_enableSquareImages == enableSquareImages) {
+    return;
+  }
+  _enableSquareImages = enableSquareImages;
+  if (_enableSquareImages) {
+    [self setupIconContainerView];
+  } else {
+    _iconImageView.translatesAutoresizingMaskIntoConstraints = YES;
+    [_iconContainerView removeFromSuperview];
+    [_button addSubview:_iconImageView];
+  }
+  [_button bringSubviewToFront:_badge];
+}
+
+- (void)setupIconContainerView {
+  if (!_enableSquareImages) {
+    return;
+  }
+  _iconContainerView.userInteractionEnabled = NO;
+  [_iconContainerView addSubview:_iconImageView];
+  [_button addSubview:_iconContainerView];
+  _iconImageView.translatesAutoresizingMaskIntoConstraints = NO;
+  if (_image != nil) {
+    _iconContainerView.frame = CGRectMake(0, 0, 24, 24);
+    UIImageSymbolConfiguration *symbolConfiguration =
+        [UIImageSymbolConfiguration configurationWithPointSize:15.5
+                                                        weight:UIImageSymbolWeightMedium];
+    _iconImageView.preferredSymbolConfiguration = symbolConfiguration;
+    [_iconImageView sizeToFit];
+    [NSLayoutConstraint activateConstraints:@[
+      [_iconImageView.centerXAnchor constraintEqualToAnchor:_iconContainerView.centerXAnchor],
+      [_iconImageView.centerYAnchor constraintEqualToAnchor:_iconContainerView.centerYAnchor],
+    ]];
+  } else {
+    self.iconContainerView.frame = CGRectZero;
+  }
 }
 
 @end

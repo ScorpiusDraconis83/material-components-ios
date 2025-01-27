@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
 /**
  Delegate methods for MDCRippleTouchController.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCRippleTouchControllerDelegate <NSObject>
 @optional
 

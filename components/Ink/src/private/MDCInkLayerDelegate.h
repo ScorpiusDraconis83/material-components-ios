@@ -26,6 +26,7 @@ API_DEPRECATED_BEGIN(
  Delegate protocol for the MDCInkLayer. Clients may implement this protocol to receive updates when
  ink layer animations start and end.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCInkLayerDelegate <CALayerDelegate>
 
 @optional

@@ -19,6 +19,7 @@
 /**
  * Delegate protocol to control when dragging should be allowed and to respond to dragging events.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCDraggableViewDelegate <NSObject>
 
 /**

@@ -20,6 +20,7 @@
  MDCDialogPresentationControllerDelegate provides a method that allows a delegate of an
  MDCDialogPresentationController to respond to its dismissals.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCDialogPresentationControllerDelegate <NSObject>
 @optional
 /**

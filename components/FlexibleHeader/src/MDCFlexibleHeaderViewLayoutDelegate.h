@@ -23,6 +23,7 @@ API_DEPRECATED_BEGIN("Use a branded UINavigationController instead.", ios(12, AP
  An object may conform to this protocol in order to receive layout change events caused by a
  MDCFlexibleHeaderView.
  */
+NS_SWIFT_UI_ACTOR
 @protocol MDCFlexibleHeaderViewLayoutDelegate <NSObject>
 @required
 
